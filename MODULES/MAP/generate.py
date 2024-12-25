@@ -8,7 +8,8 @@ WIDTH = HEIGHT = CONFIG['world_gen']['size']
 ITERATIONS = CONFIG['world_gen']['iterations']
 
 MAP = [[ELEMENTS["empty"]["ej"]] * WIDTH for _ in range(HEIGHT)]
-START_POINT: tuple = (0, 0)
+
+#  Классы обьектов ↓↓↓↓↓↓↓↓↓
 
 
 class Item(BaseModel):
@@ -41,6 +42,9 @@ class World(BaseModel):
     end_point: dict[str, int] = {"row": 10, "col": 10}
     chests: list[Chest] = None
     spawners: list[Spawner] = None
+
+
+#  Генерация карты ↓↓↓↓↓↓↓
 
 
 def get_neighbors(row, col):
@@ -76,6 +80,9 @@ def check_rules(row, col):
             return ELEMENTS["wall"]["ej"]
 
     return current_tile
+
+
+#  Точки спавна и выхода ↓↓↓↓↓↓↓↓
 
 
 def search_sp(_MAP) -> dict[str, int]:
@@ -118,6 +125,69 @@ def search_ep(_MAP) -> dict[str, int]:
     return {"row": sr, "col": sc}
 
 
+#  Открытие закрытых зон
+
+
+def zone_fill(row, col, visited, open_zones):
+    if (not (not (row < 0) and
+             not (col < 0) and
+             not (row >= HEIGHT) and
+             not (col >= WIDTH)) or
+            MAP[row][col] == ELEMENTS["wall"]["ej"] or
+            visited[row][col]):
+        return
+
+    visited[row][col] = True
+    open_zones.add((row, col))
+    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        zone_fill(row + dx, col + dy, visited, open_zones)
+
+
+def identify_closed_zones():
+    visited = [[False for _ in range(WIDTH)] for _ in range(HEIGHT)]
+    open_zones, closed_zones = set(), []
+
+    for row in range(HEIGHT):
+        for col in range(WIDTH):
+            if not visited[row][col] and MAP[row][col] == ELEMENTS["floor"]["ej"]:
+                zone = set()
+                zone_fill(row, col, visited, zone)
+                if not (ELEMENTS["floor"]["ej"] in zone or
+                        HEIGHT - 1 in [z[0] for z in zone] or
+                        WIDTH - 1 in [z[1] for z in zone]):
+                    closed_zones.append(zone)
+                else:
+                    open_zones.update(zone)
+
+    return closed_zones, open_zones
+
+
+def find_wall_candidates(closed_zones, open_zones):
+    wall_candidates = []
+    for zone in closed_zones:
+        for row, col in zone:
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                nx, ny = row + dx, col + dy
+                if (0 <= nx < HEIGHT and
+                    0 <= ny < WIDTH and
+                    MAP[nx][ny] == ELEMENTS["wall"]["ej"] and
+                    (nx, ny) not in zone and
+                    (nx, ny) in open_zones):
+                    wall_candidates.append((nx, ny))
+    return wall_candidates
+
+
+def rm_walls(wall_candidates):
+    for wall_row, wall_col in wall_candidates:
+        MAP[wall_row][wall_col] = ELEMENTS["floor"]["ej"]
+
+
+def open_closed_zones():
+    closed_zones, open_zones = identify_closed_zones()
+    wall_candidates = find_wall_candidates(closed_zones, open_zones)
+    return MAP
+
+
 def generate_iteration():
     new_map = [row_[:] for row_ in MAP]
     for row in range(HEIGHT):
@@ -130,6 +200,8 @@ def generate_world():
     global MAP
     for _ in range(ITERATIONS):
         MAP = generate_iteration()
+
+    MAP = open_closed_zones()
 
     start_p = search_sp(MAP)
     MAP[start_p["row"]][start_p["col"]] = ELEMENTS["start_point"]["ej"]

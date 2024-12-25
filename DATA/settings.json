@@ -7,18 +7,18 @@
     "elements": {
       "wall": {
         "ej": "⬜",
-        "perc": 40
+        "perc": 35
       },
       "floor": {
         "ej": "⬛",
-        "perc": 60
+        "perc": 65
       },
       "empty": {
         "ej": "+",
         "perc": 100
       },
       "start_point": {
-        "ej": "🟩"
+        "ej": "⭐"
       },
       "end_point": {
         "ej": "*️⃣"
