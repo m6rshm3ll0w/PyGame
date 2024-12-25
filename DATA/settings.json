@@ -1,0 +1,37 @@
+{
+  "name": "PyGame",
+  "version": "0.1a",
+  "world_gen": {
+    "size": 50,
+    "iterations": 30,
+    "elements": {
+      "wall": {
+        "ej": "⬜",
+        "perc": 40
+      },
+      "floor": {
+        "ej": "⬛",
+        "perc": 60
+      },
+      "empty": {
+        "ej": "+",
+        "perc": 100
+      },
+      "start_point": {
+        "ej": "🟩"
+      },
+      "end_point": {
+        "ej": "*️⃣"
+      }
+    }
+  },
+  "pygame": {
+    "width": 900,
+    "height": 600
+  },
+  "dirs": {
+    "DB": "./DATA/Dbase.db3",
+    "req": "./DATA/requirements.txt",
+    "comment": "относительно main.py"
+  }
+}
