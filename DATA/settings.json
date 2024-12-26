@@ -2,16 +2,17 @@
   "name": "PyGame",
   "version": "0.1a",
   "world_gen": {
-    "size": 50,
+    "size": 55,
+    "s-p_dist": 20,
     "iterations": 30,
     "elements": {
       "wall": {
         "ej": "⬜",
-        "perc": 35
+        "perc": 40
       },
       "floor": {
         "ej": "⬛",
-        "perc": 65
+        "perc": 60
       },
       "empty": {
         "ej": "+",

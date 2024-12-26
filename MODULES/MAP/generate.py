@@ -1,17 +1,11 @@
-from icecream import ic
+import math
+
 from pydantic import BaseModel
 import random
 from MODULES.init import CONFIG
 
-ELEMENTS = CONFIG['world_gen']['elements']
-WIDTH = HEIGHT = CONFIG['world_gen']['size']
-ITERATIONS = CONFIG['world_gen']['iterations']
-
-MAP = [[ELEMENTS["empty"]["ej"]] * WIDTH for _ in range(HEIGHT)]
 
 #  Классы обьектов ↓↓↓↓↓↓↓↓↓
-
-
 class Item(BaseModel):
     name: str
     ej: str
@@ -45,176 +39,111 @@ class World(BaseModel):
 
 
 #  Генерация карты ↓↓↓↓↓↓↓
+class MAP_GENERATION:
+    def __init__(self):
+        self.data: World
+        self.ELEMENTS = CONFIG['world_gen']['elements']
+        self.WIDTH = self.HEIGHT = CONFIG['world_gen']['size']
+        self.ITERATIONS = CONFIG['world_gen']['iterations']
+        self.MAP = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
 
+    def get_neighbors(self, row, col):
+        neighbors = []
+        for dr in [-1, 0, 1]:
+            for dc in [-1, 0, 1]:
+                if dr == 0 and dc == 0:
+                    continue
+                nr, nc = row + dr, col + dc
+                if 0 <= nr < self.HEIGHT and 0 <= nc < self.WIDTH:
+                    neighbors.append(self.MAP[nr][nc])
+        return neighbors
 
-def get_neighbors(row, col):
-    neighbors = []
-    for dr in [-1, 0, 1]:
-        for dc in [-1, 0, 1]:
-            if dr == 0 and dc == 0:
-                continue
-            nr, nc = row + dr, col + dc
-            if 0 <= nr < HEIGHT and 0 <= nc < WIDTH:
-                neighbors.append(MAP[nr][nc])
-    return neighbors
+    def check_rules(self, row, col):
+        current_tile = self.MAP[row][col]
+        neighbors = self.get_neighbors(row, col)
 
+        if current_tile == self.ELEMENTS["empty"]["ej"]:
+            if (random.randint(1, 2) == 1 and
+                    random.randint(1, 100) <= self.ELEMENTS["floor"]["perc"]):
+                return self.ELEMENTS["floor"]["ej"]
+            elif (random.randint(1, 2) == 2 and
+                  random.randint(1, 100) <= self.ELEMENTS["wall"]["perc"]):
+                return self.ELEMENTS["wall"]["ej"]
 
-def check_rules(row, col):
-    current_tile = MAP[row][col]
-    neighbors = get_neighbors(row, col)
+        elif current_tile == self.ELEMENTS["wall"]["ej"]:
+            if (neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 5 or
+                    neighbors.count(self.ELEMENTS["floor"]["ej"]) == 8):
+                return self.ELEMENTS["floor"]["ej"]
+            elif (neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 3 and
+                  neighbors.count(self.ELEMENTS["floor"]["ej"]) < 4):
+                return self.ELEMENTS["floor"]["ej"]
 
-    if current_tile == ELEMENTS["empty"]["ej"]:
-        if random.randint(1, 2) == 1 and random.randint(1, 100) <= ELEMENTS["floor"]["perc"]:
-            return ELEMENTS["floor"]["ej"]
-        elif random.randint(1, 2) == 2 and random.randint(1, 100) <= ELEMENTS["wall"]["perc"]:
-            return ELEMENTS["wall"]["ej"]
+        elif current_tile == self.ELEMENTS["floor"]["ej"]:
+            if (neighbors.count(self.ELEMENTS["wall"]["ej"]) == 2 and
+                    neighbors.count(self.ELEMENTS["floor"]["ej"]) == 5):
+                return self.ELEMENTS["wall"]["ej"]
 
-    elif current_tile == ELEMENTS["wall"]["ej"]:
-        if neighbors.count(ELEMENTS["wall"]["ej"]) >= 5 or neighbors.count(ELEMENTS["floor"]["ej"]) == 8:
-            return ELEMENTS["floor"]["ej"]
-        elif neighbors.count(ELEMENTS["wall"]["ej"]) >= 3 and neighbors.count(ELEMENTS["floor"]["ej"]) < 4:
-            return ELEMENTS["floor"]["ej"]
+        return current_tile
 
-    elif current_tile == ELEMENTS["floor"]["ej"]:
-        if neighbors.count(ELEMENTS["wall"]["ej"]) == 2 and neighbors.count(ELEMENTS["floor"]["ej"]) == 5:
-            return ELEMENTS["wall"]["ej"]
+    def search_points(self):
+        points_of_end = []
 
-    return current_tile
+        for row in range(self.HEIGHT):
+            for col in range(self.WIDTH):
+                neighbors = self.get_neighbors(row, col)
+                if neighbors.count(self.ELEMENTS["floor"]["ej"]) == 8:
+                    points_of_end.append((row, col))
 
+        total_points = len(points_of_end)
+        random.shuffle(points_of_end)
 
-#  Точки спавна и выхода ↓↓↓↓↓↓↓↓
+        r_p = random.randint(a=0, b=total_points)
 
+        er = points_of_end[r_p][0]
+        ec = points_of_end[r_p][1]
 
-def search_sp(_MAP) -> dict[str, int]:
-    points_of_start = []
+        points_of_start = []
+        for row in range(self.HEIGHT):
+            for col in range(self.WIDTH):
+                neighbors = self.get_neighbors(row, col)
 
-    for row in range(HEIGHT):
-        for col in range(WIDTH):
-            neighbors = get_neighbors(row, col)
-            if neighbors.count(ELEMENTS["wall"]["ej"]) >= 5:
-                points_of_start.append((row, col))
+                d = math.sqrt(abs((er - row) ** 2 - (ec - col) ** 2))
+                if neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 5 and d >= 15:
+                    points_of_start.append((row, col))
 
-    total_points = len(points_of_start)
-    random.shuffle(points_of_start)
+        total_points = len(points_of_start)
+        random.shuffle(points_of_start)
 
-    r_p = random.randint(a=0, b=total_points)
+        r_p = random.randint(a=0, b=total_points)
 
-    sr = points_of_start[r_p][0]
-    sc = points_of_start[r_p][1]
+        sr = points_of_start[r_p][0]
+        sc = points_of_start[r_p][1]
 
-    return {"row": sr, "col": sc}
+        return {"row": er, "col": ec}, {"row": sr, "col": sc}
 
+    def generate_iteration(self):
+        new_map = [_row[:] for _row in self.MAP]
+        for row in range(self.HEIGHT):
+            for col in range(self.WIDTH):
+                new_map[row][col] = self.check_rules(row, col)
+        return new_map
 
-def search_ep(_MAP) -> dict[str, int]:
-    points_of_end = []
+    def generate_world(self, get_map=False):
+        for _ in range(self.ITERATIONS):
+            self.MAP = self.generate_iteration()
 
-    for row in range(HEIGHT):
-        for col in range(WIDTH):
-            neighbors = get_neighbors(row, col)
-            if neighbors.count(ELEMENTS["floor"]["ej"]) == 8:
-                points_of_end.append((row, col))
+        end_p, start_p = self.search_points()
+        self.MAP[end_p["row"]][end_p["col"]] = self.ELEMENTS["end_point"]["ej"]
+        self.MAP[start_p["row"]][start_p["col"]] = self.ELEMENTS["start_point"]["ej"]
+        self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
+                          end_point=end_p).model_dump_json()
 
-    total_points = len(points_of_end)
-    random.shuffle(points_of_end)
+        with open("./DATA/world/map.dat", "w", encoding="UTF-8") as map_file:
+            for row in range(self.HEIGHT):
+                map_file.write("".join(self.MAP[row]) + "\n")
 
-    r_p = random.randint(a=0, b=total_points)
+        with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
+            conf.write(self.data)
 
-    sr = points_of_end[r_p][0]
-    sc = points_of_end[r_p][1]
-
-    return {"row": sr, "col": sc}
-
-
-#  Открытие закрытых зон
-
-
-def zone_fill(row, col, visited, open_zones):
-    if (not (not (row < 0) and
-             not (col < 0) and
-             not (row >= HEIGHT) and
-             not (col >= WIDTH)) or
-            MAP[row][col] == ELEMENTS["wall"]["ej"] or
-            visited[row][col]):
-        return
-
-    visited[row][col] = True
-    open_zones.add((row, col))
-    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        zone_fill(row + dx, col + dy, visited, open_zones)
-
-
-def identify_closed_zones():
-    visited = [[False for _ in range(WIDTH)] for _ in range(HEIGHT)]
-    open_zones, closed_zones = set(), []
-
-    for row in range(HEIGHT):
-        for col in range(WIDTH):
-            if not visited[row][col] and MAP[row][col] == ELEMENTS["floor"]["ej"]:
-                zone = set()
-                zone_fill(row, col, visited, zone)
-                if not (ELEMENTS["floor"]["ej"] in zone or
-                        HEIGHT - 1 in [z[0] for z in zone] or
-                        WIDTH - 1 in [z[1] for z in zone]):
-                    closed_zones.append(zone)
-                else:
-                    open_zones.update(zone)
-
-    return closed_zones, open_zones
-
-
-def find_wall_candidates(closed_zones, open_zones):
-    wall_candidates = []
-    for zone in closed_zones:
-        for row, col in zone:
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                nx, ny = row + dx, col + dy
-                if (0 <= nx < HEIGHT and
-                    0 <= ny < WIDTH and
-                    MAP[nx][ny] == ELEMENTS["wall"]["ej"] and
-                    (nx, ny) not in zone and
-                    (nx, ny) in open_zones):
-                    wall_candidates.append((nx, ny))
-    return wall_candidates
-
-
-def rm_walls(wall_candidates):
-    for wall_row, wall_col in wall_candidates:
-        MAP[wall_row][wall_col] = ELEMENTS["floor"]["ej"]
-
-
-def open_closed_zones():
-    closed_zones, open_zones = identify_closed_zones()
-    wall_candidates = find_wall_candidates(closed_zones, open_zones)
-    return MAP
-
-
-def generate_iteration():
-    new_map = [row_[:] for row_ in MAP]
-    for row in range(HEIGHT):
-        for col in range(WIDTH):
-            new_map[row][col] = check_rules(row, col)
-    return new_map
-
-
-def generate_world():
-    global MAP
-    for _ in range(ITERATIONS):
-        MAP = generate_iteration()
-
-    MAP = open_closed_zones()
-
-    start_p = search_sp(MAP)
-    MAP[start_p["row"]][start_p["col"]] = ELEMENTS["start_point"]["ej"]
-
-    end_p = search_ep(MAP)
-    MAP[end_p["row"]][end_p["col"]] = ELEMENTS["end_point"]["ej"]
-
-    with open("./DATA/world/map.txt", "w", encoding="UTF-8") as map_file:
-        for row in range(HEIGHT):
-            map_file.write("".join(MAP[row]) + "\n")
-
-    with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
-        conf.write(World(size=10, elements=ELEMENTS, start_point=start_p, end_point=end_p).model_dump_json())
-
-
-generate_world()
+        if get_map:
+            return self.MAP
