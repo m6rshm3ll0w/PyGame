@@ -46,6 +46,7 @@ class MAP_GENERATION:
         self.WIDTH = self.HEIGHT = CONFIG['world_gen']['size']
         self.ITERATIONS = CONFIG['world_gen']['iterations']
         self.MAP = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
+        self.DIST = CONFIG['world_gen']['s-p_dist']
 
     def get_neighbors(self, row, col):
         neighbors = []
@@ -108,7 +109,7 @@ class MAP_GENERATION:
                 neighbors = self.get_neighbors(row, col)
 
                 d = math.sqrt(abs((er - row) ** 2 - (ec - col) ** 2))
-                if neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 5 and d >= 15:
+                if neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 5 and d >= self.DIST:
                     points_of_start.append((row, col))
 
         total_points = len(points_of_start)
