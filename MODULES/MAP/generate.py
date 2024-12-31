@@ -3,6 +3,7 @@ import math
 from pydantic import BaseModel
 import random
 from MODULES.init import CONFIG
+from MODULES.MAP.tileset_use import MAP2TILEMAP
 
 
 #  Классы обьектов ↓↓↓↓↓↓↓↓↓
@@ -41,7 +42,8 @@ class World(BaseModel):
 #  Генерация карты ↓↓↓↓↓↓↓
 class MAP_GENERATION:
     def __init__(self):
-        self.data: World
+        self.data = None
+        self.TILEMAP = None
         self.ELEMENTS = CONFIG['world_gen']['elements']
         self.WIDTH = self.HEIGHT = CONFIG['world_gen']['size']
         self.ITERATIONS = CONFIG['world_gen']['iterations']
@@ -98,7 +100,7 @@ class MAP_GENERATION:
         total_points = len(points_of_end)
         random.shuffle(points_of_end)
 
-        r_p = random.randint(a=0, b=total_points)
+        r_p = random.randint(a=0, b=total_points)-1
 
         er = points_of_end[r_p][0]
         ec = points_of_end[r_p][1]
@@ -112,7 +114,7 @@ class MAP_GENERATION:
                 if neighbors.count(self.ELEMENTS["wall"]["ej"]) >= 5 and d >= self.DIST:
                     points_of_start.append((row, col))
 
-        total_points = len(points_of_start)
+        total_points = len(points_of_start)-1
         random.shuffle(points_of_start)
 
         r_p = random.randint(a=0, b=total_points)
@@ -129,9 +131,23 @@ class MAP_GENERATION:
                 new_map[row][col] = self.check_rules(row, col)
         return new_map
 
-    def generate_world(self, get_map=False):
+
+    def add_borders(self):
+        self.MAP[0] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
+        self.MAP[-1] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
+
+        for row in range(self.HEIGHT):
+            self.MAP[row][0] = self.ELEMENTS["wall"]["ej"]
+            self.MAP[row][-1] = self.ELEMENTS["wall"]["ej"]
+
+        self.generate_iteration()
+
+
+    def generate_world(self):
         for _ in range(self.ITERATIONS):
             self.MAP = self.generate_iteration()
+
+        self.add_borders()
 
         end_p, start_p = self.search_points()
         self.MAP[end_p["row"]][end_p["col"]] = self.ELEMENTS["end_point"]["ej"]
@@ -139,12 +155,25 @@ class MAP_GENERATION:
         self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
                           end_point=end_p).model_dump_json()
 
-        with open("./DATA/world/map.dat", "w", encoding="UTF-8") as map_file:
+
+        ref = MAP2TILEMAP()
+        ref.reformat(self.MAP)
+
+        self.TILEMAP = ref.get_tilemap()
+
+        with open("./DATA/world/map-simple.dat", "w", encoding="UTF-8") as map_file:
             for row in range(self.HEIGHT):
                 map_file.write("".join(self.MAP[row]) + "\n")
+
+        with open("./DATA/world/map-tiled.dat", "w", encoding="UTF-8") as map_file:
+            for row in range(self.HEIGHT):
+                map_file.write("$".join(self.TILEMAP[row]) + "\n")
 
         with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
             conf.write(self.data)
 
-        if get_map:
-            return self.MAP
+    def get_map(self):
+        if self.MAP is None and self.TILEMAP is None:
+            raise ValueError("You dont generated the map!!!!")
+        else:
+            return self.TILEMAP
