@@ -1,11 +1,15 @@
 import pygame as pg
+
 from MODULES.MAP.generate import MAP_GENERATION
+from MODULES.RENDER.MAP2IMG import map_visualise
 
 
 def main(screen):
 
-    generator = MAP_GENERATION()
-    MAP = generator.generate_world()
+    WLD = MAP_GENERATION()
+    WLD.generate_world()
+    MAP = WLD.get_map()
+    map_visualise(MAP)
 
     running = True
     while running:
