@@ -48,8 +48,10 @@
     }
   },
   "pygame": {
+    "FPS": 60,
     "width": 900,
-    "height": 600
+    "height": 600,
+    "distance": 20
   },
   "dirs": {
     "DB": "./DATA/Dbase.db3",
