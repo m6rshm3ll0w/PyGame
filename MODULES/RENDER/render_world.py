@@ -10,7 +10,7 @@ TILES = CONFIG['world_gen']['tile_set']["tiles"]
 SIZE = CONFIG['world_gen']['tile_set']["size"]
 
 
-
+#spawn_wall
 class Floor_entity(pg.sprite.Sprite):
     def __init__(self, width, height, x, y):
         pg.sprite.Sprite.__init__(self)
