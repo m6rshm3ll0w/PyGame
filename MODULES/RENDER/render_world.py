@@ -89,10 +89,10 @@ class WorldClass:
 
         render_list = map.copy()
 
-        # render_list = render_list[int(start_point["row"]) + self.draw_dist:][:self.draw_dist * 2 + 1]
-        #
-        # for n, row in enumerate(render_list):
-        #     render_list[n] = row[int(start_point["col"]) + self.draw_dist:][:self.draw_dist * 2 + 1]
+        render_list = render_list[int(start_point["row"]) + self.draw_dist:][:self.draw_dist * 2 + 1]
+
+        for n, row in enumerate(render_list):
+            render_list[n] = row[int(start_point["col"]) + self.draw_dist:][:self.draw_dist * 2 + 1]
 
     def search(self, row, col):
         TILEMAP = self.WORLD.get_map()
@@ -114,7 +114,7 @@ class WorldClass:
 
             nt = image.crop((top_x, top_y, down_x + 1, down_y + 1))
 
-            tmppath = f"\\DATA\\tmp\\tiles\\"
+            tmppath = f"\\DATA\\tmp\\tiles\\init"
 
             if not os.path.exists(os.getcwd()+tmppath):
                 os.mkdir(os.getcwd()+tmppath)
