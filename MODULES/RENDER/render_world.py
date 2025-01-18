@@ -1,27 +1,30 @@
 import os
 
+import pygame.image
+
 from MODULES.RENDER.MAP2IMG import map_visualise
 import pygame as pg
 from MODULES.init import CONFIG
 from PIL import Image
-from MODULES.init import BLACK, RED
+from MODULES.init import BLACK
 
 TILES = CONFIG['world_gen']['tile_set']["tiles"]
 SIZE = CONFIG['world_gen']['tile_set']["size"]
 
 
-#spawn_wall
-class Floor_entity(pg.sprite.Sprite):
-    def __init__(self, width, height, x, y):
+class Tile_entity(pg.sprite.Sprite):
+    def __init__(self, x, y, path):
         pg.sprite.Sprite.__init__(self)
 
-        self.image = pg.Surface([width, height])
-        self.image.fill(BLACK)
+        img = pygame.image.load(path)
+
+        self.image = img
         self.image.set_colorkey(BLACK)
-
-        pg.draw.rect(self.image, RED, (x, y, SIZE, SIZE))
-
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.rect.x = x
+        self.rect.y = y
 
 
 
@@ -44,24 +47,44 @@ class WorldClass:
             MAP = self.WORLD.get_map()
             map_visualise(MAP)
 
-    def draw_floor(self):
-        up_right_draw_corner = center[0] - SIZE//2, center[1] - SIZE//2
+    def get_center_tile_corner(self):
+        center = self.floor_surface.get_rect().center
+        up_left_draw_corner = center[0] - SIZE // 2, center[1] - SIZE // 2
 
-        try:
-            obj_ = Floor_entity(self.floor_surface.get_width(),
-                                self.floor_surface.get_width(),
-                                up_right_draw_corner[0],
-                                up_right_draw_corner[1])
-            self.FLOOR.add(obj_)
-        except AttributeError:
-            raise AttributeError("ээээээ я хз что это")
+        return (up_left_draw_corner[0] - (SIZE * self.draw_dist + 1),
+                up_left_draw_corner[1] - (SIZE * self.draw_dist + 1))
+
+    def draw_floor(self):
+        center = self.get_center_tile_corner()
+
+        for x_c in range(center[0], center[0] + (SIZE*self.draw_dist*2)+1, SIZE):
+            for y_c in range(center[1], center[1] + (SIZE*self.draw_dist*2)+1, SIZE):
+                self.draw_tile(up_left_draw_corner=(x_c, y_c), tile_type=self.tiles_img["floor"])
+
+
+    def draw_tile(self, up_left_draw_corner, tile_type, wall=False):
+        if not wall:
+            try:
+                obj_ = Tile_entity(up_left_draw_corner[0],
+                                   up_left_draw_corner[1], tile_type)
+                self.FLOOR.add(obj_)
+            except AttributeError:
+                raise AttributeError("ээээээ я хз что это")
+
+        if wall:
+            try:
+                obj_ = Tile_entity(up_left_draw_corner[0],
+                                   up_left_draw_corner[1], tile_type)
+                self.WALL.add(obj_)
+            except AttributeError:
+                raise AttributeError("ээээээ я хз что это")
 
     def draw_wall(self):
         render_list = []
 
         data = self.WORLD.get_data()
         start_point = data.start_point
-        center = self.floor_surface.get_width() / 2, self.floor_surface.get_height() / 2
+        center = self.get_center_tile_corner()
         map = self.WORLD.get_map()
 
         render_list = map.copy()
@@ -71,8 +94,11 @@ class WorldClass:
         for n, row in enumerate(render_list):
             render_list[n] = row[int(start_point["col"]) + self.draw_dist:][:self.draw_dist * 2 + 1]
 
-
-
+    def search(self, row, col):
+        TILEMAP = self.WORLD.get_map()
+        for tile, data in TILES.items():
+            if data["ej"] == TILEMAP[row][col]:
+                return tile
 
     def get_world(self):
         return self.WORLD

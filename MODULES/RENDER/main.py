@@ -32,8 +32,6 @@ def main(screen, size):
             if event.type == pg.QUIT:
                 running = False
 
-        pg.draw.rect(gui_surf, (255,255,255), (game_surf.get_width() // 2 - 6, game_surf.get_height() // 2 - 6, 12, 12))
-
         World.draw_floor()
 
         FLOOR = World.sprite_list_Floor()
