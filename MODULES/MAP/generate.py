@@ -153,7 +153,7 @@ class MAP_GENERATION:
         self.MAP[end_p["row"]][end_p["col"]] = self.ELEMENTS["end_point"]["ej"]
         self.MAP[start_p["row"]][start_p["col"]] = self.ELEMENTS["start_point"]["ej"]
         self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
-                          end_point=end_p).model_dump_json()
+                          end_point=end_p)
 
 
         ref = MAP2TILEMAP()
@@ -170,10 +170,16 @@ class MAP_GENERATION:
                 map_file.write("$".join(self.TILEMAP[row]) + "\n")
 
         with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
-            conf.write(self.data)
+            conf.write(self.data.model_dump_json())
 
     def get_map(self):
         if self.MAP is None and self.TILEMAP is None:
             raise ValueError("You dont generated the map!!!!")
         else:
             return self.TILEMAP
+
+    def get_data(self):
+        if self.data is None:
+            raise ValueError("You dont generated the map!!!!")
+        else:
+            return self.data
