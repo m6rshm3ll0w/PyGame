@@ -39,11 +39,11 @@
         "vertical-wall":        {"coord": [2, 5], "ej": "V-W"},
         "vertical-down-end":    {"coord": [3, 5], "ej": "V-DE"},
 
-        "end-point":            {"coord": [2, 6], "ej": "P-E"},
-        "start-point":          {"coord": [2, 6], "ej": "P-S"},
+        "end-point":            {"coord": [2, 10], "ej": "P-E"},
+        "start-point":          {"coord": [3, 10], "ej": "P-S"},
 
-        "spawner":              {"coord": [2, 6], "ej": "S"},
-        "chest":                {"coord": [2, 6], "ej": "C"}
+        "spawner":              {"coord": [2, 9], "ej": "S"},
+        "chest":                {"coord": [3, 9], "ej": "C"}
       }
     }
   },
@@ -51,7 +51,10 @@
     "FPS": 60,
     "width": 900,
     "height": 600,
-    "distance": 8
+    "distance": 8,
+    "fullscreen": "No",
+    "f_width": 1920,
+    "f_height": 1080
   },
   "dirs": {
     "DB": "./DATA/Dbase.db3",
