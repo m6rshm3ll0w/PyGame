@@ -3,7 +3,7 @@ import pygame as pg
 
 from MODULES.MAP.generate import MAP_GENERATION
 from MODULES.RENDER.render_world import WorldClass
-from MODULES.init import CONFIG, ALL_SPRITES_LIST, BLACK
+from MODULES.init import CONFIG, BLACK
 
 FPS = int(CONFIG["pygame"]["FPS"])
 
