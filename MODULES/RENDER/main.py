@@ -1,6 +1,8 @@
 import pygame
 import pygame as pg
 
+import time
+
 from MODULES.Entitys.player import Player as Player_class
 from MODULES.MAP.generate import MAP_GENERATION
 from MODULES.RENDER.render_world import WorldClass
@@ -9,17 +11,17 @@ from MODULES.init import CONFIG, BLACK
 FPS = int(CONFIG["pygame"]["FPS"])
 
 
-def upd_map(World, screen, game_surf):
+def upd_map(World, floor_surf, game_surf):
     World.draw_floor()
     World.draw_wall()
 
-    FLOOR = World.sprite_list_Floor()
-    FLOOR.draw(screen)
+    FLOOR = World.FLOOR
     FLOOR.update()
+    FLOOR.draw(floor_surf)
 
-    WALL = World.sprite_list_Wall()
+    WALL = World.WALL
+    FLOOR.update()
     WALL.draw(game_surf)
-    WALL.update()
 
 
 def set_up_layers(size):
@@ -67,9 +69,11 @@ def main(screen, size):
 
     World, Player = create_obj(floor_surf, game_surf)
     World.generate_worldmap()
+    World.pre_render_textures()
 
     running = True
     while running:
+        time_start = time.time()
         clear_screen(screen, floor_surf, game_surf, gui_surf, World)
 
         for event in pg.event.get():
@@ -93,6 +97,10 @@ def main(screen, size):
         Player.draw(game_surf)
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
+
+        time_end = time.time()
+
+        print(f"{1//(time_end - time_start)} FPS")
 
 
 

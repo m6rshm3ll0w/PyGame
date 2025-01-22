@@ -14,6 +14,7 @@
     },
     "tile_set": {
       "size": 32,
+      "base_size": 32,
       "comment": "format: row; column ---- start from 1 ---------- splitter > $ <",
       "tiles": {
         "floor":                {"coord": [2, 6], "ej": "F"},
@@ -51,7 +52,8 @@
     "FPS": 60,
     "width": 900,
     "height": 600,
-    "distance": 5,
+    "distance": 3,
+    "scale": 1,
     "fullscreen": "No",
     "f_width": 1920,
     "f_height": 1080
