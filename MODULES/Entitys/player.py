@@ -1,5 +1,4 @@
 import pygame
-import math
 from MODULES.init import CONFIG
 
 FPS = int(CONFIG["pygame"]["FPS"])
@@ -10,102 +9,101 @@ class Player:
         self.x: float = x
         self.y: float = y
         self.speed: float = 200
+        self.last_direction_key = None
 
-        desired_width, desired_height = 30, 30
-
-        self.original_image_scaled1 = self.make_image('player1.png', desired_width,
-                                                      desired_height)
-
-        self.original_image_scaled2 = self.make_image('player2.png', desired_width,
-                                                      desired_height)
-
-        self.original_image_scaled3 = self.make_image('player3.png', desired_width,
-                                                      desired_height)
-
-        self.images = [
-            self.original_image_scaled1,
-            self.original_image_scaled2,
-            self.original_image_scaled1,
-            self.original_image_scaled3,
-            self.original_image_scaled1
-        ]
+        desired_width, desired_height = 60, 60
+        self.setup_image_lists(desired_width, desired_height)
 
         self.current_image_index = 0
-        self.image = self.images[self.current_image_index]
+        self.current_direction = 'w'
+        self.image = self.top_images[self.current_image_index]
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
         self.width = desired_width
         self.height = desired_height
 
         self.last_image_change = 0
-        self.animation_interval = 100
+        self.animation_interval = 50
 
-    def make_image(self, filename, desired_wdth, desired_hght):
+    def setup_image_lists(self, width, height):
+        directions = {
+            'top': 8,
+            'back': 8,
+            'left': 8,
+            'right': 8
+        }
+
+        for direction, count in directions.items():
+            images = []
+            for i in range(1, count + 1):
+                image = self.create_scaled_image(f'{direction}{i}.png', width, height)
+                images.append(image)
+                setattr(self, f'{direction}_image_{i}', image)
+            setattr(self, f'{direction}_images', images)
+
+    def create_scaled_image(self, filename, desired_wdth, desired_hght):
         img = pygame.image.load(f'./DATA/reses/player/{filename}')
-        scalled_img = pygame.transform.scale(img, (desired_wdth, desired_hght))
-        return scalled_img
+        return pygame.transform.scale(img, (desired_wdth, desired_hght))
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+    def handle_keydown(self, key):
+        if key in (pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d):
+            self.last_direction_key = key
+
     def move(self, keys, center):
         speed_per_frame = self.speed / FPS
-        diagonal_speed = speed_per_frame / math.sqrt(2)
+        current_key = None
 
-        move_up = keys[pygame.K_w]
-        move_left = keys[pygame.K_a]
-        move_down = keys[pygame.K_s]
-        move_right = keys[pygame.K_d]
+        if self.last_direction_key and keys[self.last_direction_key]:
+            current_key = self.last_direction_key
+        else:
+            for key in [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]:
+                if keys[key]:
+                    current_key = key
+                    self.last_direction_key = key
+                    break
 
-        if move_up and move_left:
-            angle = 45
-            self.x -= diagonal_speed
-            self.y -= diagonal_speed
-        elif move_up and move_right:
-            angle = -45
-            self.x += diagonal_speed
-            self.y -= diagonal_speed
-        elif move_down and move_left:
-            angle = 135
-            self.x -= diagonal_speed
-            self.y += diagonal_speed
-        elif move_down and move_right:
-            angle = -135
-            self.x += diagonal_speed
-            self.y += diagonal_speed
-        elif move_up:
-            angle = 0
+        prev_direction = self.current_direction
+
+        if current_key == pygame.K_w:
             self.y -= speed_per_frame
-        elif move_down:
-            angle = 180
+            self.current_direction = 'w'
+        elif current_key == pygame.K_s:
             self.y += speed_per_frame
-        elif move_left:
-            angle = 90
+            self.current_direction = 's'
+        elif current_key == pygame.K_a:
             self.x -= speed_per_frame
-        elif move_right:
-            angle = -90
+            self.current_direction = 'a'
+        elif current_key == pygame.K_d:
             self.x += speed_per_frame
+            self.current_direction = 'd'
         else:
-            angle = 0
+            self.current_direction = 'w'
 
-        if angle != 0:
-            self.image = pygame.transform.rotate(self.images[self.current_image_index], angle)
-        else:
-            self.image = self.images[self.current_image_index]
+        if prev_direction != self.current_direction:
+            self.current_image_index = 0
 
-        self.rect = self.image.get_rect(center=(self.x, self.y))
+        image_lists = {
+            'w': self.back_images,
+            's': self.top_images,
+            'a': self.left_images,
+            'd': self.right_images
+        }
+        current_images = image_lists.get(self.current_direction, self.top_images)
 
-        if move_up or move_left or move_down or move_right:
+        if current_key is not None:
             current_time = pygame.time.get_ticks()
             if current_time - self.last_image_change > self.animation_interval:
                 self.last_image_change = current_time
-                self.current_image_index += 1
-                if self.current_image_index >= len(self.images):
-                    self.current_image_index = 0
+                self.current_image_index = (self.current_image_index + 1) % len(current_images)
+            self.image = current_images[self.current_image_index]
         else:
             self.current_image_index = 0
-            self.image = self.images[self.current_image_index]
-            self.rect = self.image.get_rect(center=(self.x, self.y))
+            self.image = self.top_images[self.current_image_index]
+
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
         if (self.x - center[0]) >= 64:
             self.x -= speed_per_frame - 1

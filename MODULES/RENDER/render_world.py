@@ -1,6 +1,6 @@
 import os
 
-from MODULES.MAP.generate import MAP_GENERATION
+from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.MAP2IMG import map_visualise
 import pygame as pg
 from MODULES.init import CONFIG
@@ -28,7 +28,7 @@ class Tile_entity(pg.sprite.Sprite):
 
 
 class WorldClass:
-    def __init__(self, WORLD: MAP_GENERATION, floor_surface, wall_surface):
+    def __init__(self, WORLD: MapGeneration, floor_surface, wall_surface):
         self.FLOOR = pg.sprite.Group()
         self.WALL = pg.sprite.Group()
         self.WORLD = WORLD
@@ -45,7 +45,7 @@ class WorldClass:
         self.draw_dist = CONFIG["pygame"]["distance"]
         self.crop_tiles()
 
-    def generate_worldmap(self, vis=False):
+    def generate_world_map(self, vis=False):
         self.WORLD.generate_world()
         if vis:
             MAP = self.WORLD.get_map()

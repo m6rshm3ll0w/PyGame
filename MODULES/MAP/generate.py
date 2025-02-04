@@ -40,7 +40,7 @@ class World(BaseModel):
 
 
 #  Генерация карты ↓↓↓↓↓↓↓
-class MAP_GENERATION:
+class MapGeneration:
     def __init__(self):
         self.data = None
         self.TILEMAP = None
