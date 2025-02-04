@@ -3,7 +3,7 @@
   "version": "0.1a",
   "world_gen": {
     "size": 55,
-    "s-p_dist": 20,
+    "s-p_dist": 25,
     "iterations": 30,
     "elements": {
       "wall": {"ej": "⬜", "perc": 40},
