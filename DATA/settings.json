@@ -59,6 +59,12 @@
   "dirs": {
     "DB": "./DATA/Dbase.db3",
     "req": "./DATA/requirements.txt",
-    "comment": "относительно main.py"
+    "comment": "относительно main.py",
+    "start": "./DATA/reses/start_end_pictures/start.png",
+    "fonts": {
+      "CeltesSP2": "./DATA/fonts/CeltesSP2.otf",
+      "LeMano": "./DATA/fonts/LeMano.ttf",
+      "TheBashSingingSlashy": "./DATA/fonts/TheBashSingingSlashy.otf"
+    }
   }
 }

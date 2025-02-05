@@ -9,7 +9,8 @@ if __name__ == "__main__":
     pygame.init()
 
     if CONFIG["pygame"]["fullscreen"] == "Yes":
-        scr = pygame.display.set_mode((int(f_size[0]), int(f_size[1])), pygame.FULLSCREEN)
+        scr = pygame.display.set_mode(
+            (int(f_size[0]), int(f_size[1])), pygame.FULLSCREEN)
     else:
         scr = pygame.display.set_mode((int(size[0]), int(size[1])))
 
