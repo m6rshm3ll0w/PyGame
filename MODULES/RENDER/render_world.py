@@ -1,4 +1,5 @@
 import os
+from tkinter import N
 
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.MAP2IMG import map_visualise
@@ -24,22 +25,26 @@ class Tile_entity(pg.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+        self.mask = pg.mask.from_surface(self.image)
 
 
 class WorldClass:
     def __init__(self, WORLD: MapGeneration, floor_surface, wall_surface):
-        self.FLOOR = pg.sprite.Group()
-        self.WALL = pg.sprite.Group()
+        self.FLOOR = None
+        self.WALL = None
         self.WORLD = WORLD
         self.floor_surface = floor_surface
         self.wall_surface = wall_surface
-        self.tiles_img = None
 
         self.x_coord = 20
         self.y_coord = 20
 
         self.x_centr = 0
         self.y_centr = 0
+
+        self.tiles_img:dict
 
         self.draw_dist = CONFIG["pygame"]["distance"]
         self.crop_tiles()
@@ -62,14 +67,14 @@ class WorldClass:
         center0 = self.get_center_tile_corner()
         center = center0[0] + self.x_centr, center0[1] + self.y_centr
 
-        self.draw_tile(up_left_draw_corner=(center[0], center[1]), tile_type=f"./DATA/tmp/floor_sprite.png")
+        self.draw_tile(up_left_draw_corner=(center[0], center[1]), tile_type="./DATA/tmp/floor_sprite.png")
 
     def draw_tile(self, up_left_draw_corner, tile_type, wall=False):
         if not wall:
             try:
                 obj_ = Tile_entity(up_left_draw_corner[0],
                                    up_left_draw_corner[1], tile_type)
-                self.FLOOR.add(obj_)
+                self.FLOOR = obj_
             except AttributeError:
                 raise AttributeError("ээээээ я хз что это")
 
@@ -77,7 +82,7 @@ class WorldClass:
             try:
                 obj_ = Tile_entity(up_left_draw_corner[0],
                                    up_left_draw_corner[1], tile_type)
-                self.WALL.add(obj_)
+                self.WALL = obj_
             except AttributeError:
                 raise AttributeError("ээээээ я хз что это")
 
@@ -139,7 +144,7 @@ class WorldClass:
 
             nt = image.crop((top_x, top_y, down_x, down_y))
 
-            tmppath = f"\\DATA\\tmp\\tiles\\"
+            tmppath = "\\DATA\\tmp\\tiles\\"
 
             if not os.path.exists(os.getcwd() + tmppath):
                 os.mkdir(os.getcwd() + tmppath)
@@ -160,7 +165,7 @@ class WorldClass:
                 tile = Image.open(self.tiles_img["floor"])
                 img_floor.paste(tile, (col * 32, row * 32))
 
-        img_floor.save(f"./DATA/tmp/floor_sprite.png")
+        img_floor.save("./DATA/tmp/floor_sprite.png")
 
         print("DONE!!!")
 
@@ -177,7 +182,7 @@ class WorldClass:
                     tile_img = Image.open(self.tiles_img[tile])
                     img_wall.paste(tile_img, (col * 32, row * 32))
 
-        img_wall.save(f"./DATA/tmp/wall_sprite.png")
+        img_wall.save("./DATA/tmp/wall_sprite.png")
 
         print("DONE!!!")
 
@@ -188,8 +193,7 @@ class WorldClass:
         print(">> DONE!!!")
 
     def groups_clear(self):
-        self.WALL = pg.sprite.Group()
-        self.FLOOR = pg.sprite.Group()
+        pass
 
     def center_point(self, other: int, operat: str):
         if operat == "+x":

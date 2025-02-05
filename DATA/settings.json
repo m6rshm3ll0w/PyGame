@@ -52,11 +52,28 @@
     "FPS": 60,
     "width": 900,
     "height": 600,
-    "distance": 3,
+    "distance": 4,
     "scale": 1,
     "fullscreen": "No",
     "f_width": 1920,
     "f_height": 1080
+  },
+  "player": {
+    "speed": 200,
+    "width": 60,
+    "height": 60, 
+    "animation_sprites":7,
+    "animation_fps":7,
+    "sprite_list": {
+      "size": 64,
+      "cols": 7,
+      "rows": 1,
+      "paths":{
+      "up": "./DATA/reses/player/player_top.png",
+      "down": "./DATA/reses/player/player_back.png",
+      "left": "./DATA/reses/player/player_left.png",
+      "right": "./DATA/reses/player/player_right.png"}
+    }
   },
   "dirs": {
     "DB": "./DATA/Dbase.db3",

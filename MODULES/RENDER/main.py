@@ -1,7 +1,9 @@
 import pygame
 import pygame as pg
+import time
 
-from MODULES.Entitys.player import Player
+
+from MODULES.ENTITYES.player import Player
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
 from MODULES.init import CONFIG, BLACK
@@ -11,13 +13,11 @@ FPS = int(CONFIG["pygame"]["FPS"])
 
 def update_map(World, screen, game_surf):
     World.draw_floor()
-    World.draw_wall()
-
-    FLOOR = World.sprite_list_Floor()
+    World.draw_wall() 
+    FLOOR = World.FLOOR
     FLOOR.draw(screen)
-    FLOOR.update()
 
-    WALL = World.sprite_list_Wall()
+    WALL = World.WALL
     WALL.draw(game_surf)
     WALL.update()
 
@@ -67,9 +67,12 @@ def main_game_loop(screen, size):
 
     world, player = create_object(floor_surf, game_surf)
     world.generate_world_map()
+    world.render_floor()
+    world.render_wall()
 
     running = True
     while running:
+        time_start = time.time()
         clear_screen(screen, floor_surf, game_surf, gui_surf, world)
 
         for event in pg.event.get():
@@ -87,12 +90,16 @@ def main_game_loop(screen, size):
         if (center[1] - player.y) >= 64:
             world.center_point(200//FPS, "+y")
 
-        player.move(keys, center)
 
         update_map(world, floor_surf, game_surf)
+
+        player.update(keys, center, world.WALL)
         player.draw(game_surf)
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
+
+        time_end = time.time()
+        print(f"FPS {1//(time_end - time_start):.1f}")
 
 
 
