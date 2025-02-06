@@ -25,6 +25,7 @@ class Tile_entity(pg.sprite.Sprite):
 
         self.rect.x = x
         self.rect.y = y
+        
     def draw(self, screen):
         screen.blit(self.image, self.rect)
         self.mask = pg.mask.from_surface(self.image)

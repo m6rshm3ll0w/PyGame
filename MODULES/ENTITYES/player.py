@@ -144,9 +144,12 @@ class Player(pg.sprite.Sprite):
     
     def update(self, keys, center, wall):
         self.mask = pg.mask.from_surface(self.image)
-        if pg.sprite.collide_mask(self, wall):
-            print("COLLISION")
 
+        if self.mask.overlap(wall.mask, (10,10)):
+            print(f"1COLLISION {round(int(time.time()), 2)}")
+
+        # if pg.sprite.collide_mask(self, wall):
+        #     print("COLLISION")
         self.move(keys, center)
         self.frame_load()
 
