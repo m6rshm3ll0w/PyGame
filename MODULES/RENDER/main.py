@@ -1,7 +1,10 @@
 import pygame
 import pygame as pg
+import time
 
-from MODULES.Entitys.player import Player
+
+from MODULES.ENTITYES.player import Player
+from MODULES.RENDER.fog import fog_of_game
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
 from MODULES.init import CONFIG, BLACK
@@ -11,13 +14,11 @@ FPS = int(CONFIG["pygame"]["FPS"])
 
 def update_map(World, screen, game_surf):
     World.draw_floor()
-    World.draw_wall()
-
-    FLOOR = World.sprite_list_Floor()
+    World.draw_wall() 
+    FLOOR = World.FLOOR
     FLOOR.draw(screen)
-    FLOOR.update()
 
-    WALL = World.sprite_list_Wall()
+    WALL = World.WALL
     WALL.draw(game_surf)
     WALL.update()
 
@@ -58,7 +59,14 @@ def clear_screen(screen, floor_surf, game_surf, gui_surf, world):
     world.groups_clear()
 
 
-def main_game_loop(screen, size):
+def draw_fog(obj, screen):
+    obj.draw(screen)
+
+
+
+def MainGameLoop(screen, size, audio):
+    audio.unpause_music()
+
     pg.event.set_allowed([pg.QUIT])
 
     clock = pg.time.Clock()
@@ -67,14 +75,19 @@ def main_game_loop(screen, size):
 
     world, player = create_object(floor_surf, game_surf)
     world.generate_world_map()
+    world.render_floor()
+    world.render_wall()
+
+    fog = fog_of_game("./DATA/reses/fog/fog.png")
 
     running = True
     while running:
         clear_screen(screen, floor_surf, game_surf, gui_surf, world)
+        draw_fog(fog, gui_surf)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                running = False
+                return 'quit'
 
         keys = pygame.key.get_pressed()
 
@@ -87,12 +100,15 @@ def main_game_loop(screen, size):
         if (center[1] - player.y) >= 64:
             world.center_point(200//FPS, "+y")
 
-        player.move(keys, center)
 
         update_map(world, floor_surf, game_surf)
+
+        player.update(keys, center, world.WALL)
         player.draw(game_surf)
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
+
+        # print(f"FPS {1//(time_end - time_start):.1f}")
 
 
 
