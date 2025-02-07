@@ -42,7 +42,7 @@ class Player:
             setattr(self, f'{direction}_images', images)
 
     def create_scaled_image(self, filename, desired_wdth, desired_hght):
-        img = pygame.image.load(f'./DATA/reses/player/{filename}')
+        img = pygame.image.load(f'{CONFIG['dirs']['player_pictures']}{filename}')
         return pygame.transform.scale(img, (desired_wdth, desired_hght))
 
     def draw(self, surface):

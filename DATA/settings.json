@@ -60,7 +60,9 @@
     "DB": "./DATA/Dbase.db3",
     "req": "./DATA/requirements.txt",
     "comment": "относительно main.py",
-    "start": "./DATA/reses/start_end_pictures/start.png",
+    "start_picture": "./DATA/reses/start_end_pictures/start.png",
+    "best_results": "./MODULES/BEST_RESULTS/best_results.py",
+    "player_pictures": "DATA/reses/player/",
     "fonts": {
       "CeltesSP2": "./DATA/fonts/CeltesSP2.otf",
       "LeMano": "./DATA/fonts/LeMano.ttf",

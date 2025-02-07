@@ -1,4 +1,3 @@
-import os
 import pygame
 import sys
 import subprocess
@@ -15,7 +14,7 @@ pygame.init()
 screen = pygame.display.set_mode((int(size[0]), int(size[1])))
 screen_width, screen_height = screen.get_size()
 
-image = pygame.image.load('./DATA/reses/start_end_pictures/start.png')
+image = pygame.image.load(CONFIG['dirs']['start_picture'])
 image = pygame.transform.scale(image, (screen_width, screen_height))
 
 start_click_area = pygame.Rect(340, 520, 115, 45)
@@ -55,7 +54,7 @@ while running:
                     sys.exit()
                 if best_results_click_area.collidepoint(event.pos):
                     pygame.quit()
-                    subprocess.run(['python', './MODULES/BEST_RESULTS/best_results.py'])
+                    subprocess.run(['python', CONFIG['dirs']['best_results']])
                     sys.exit()
 
     screen.blit(image, (0, 0))
