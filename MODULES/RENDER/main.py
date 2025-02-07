@@ -58,12 +58,15 @@ def clear_screen(screen, floor_surf, game_surf, gui_surf, world):
     gui_surf.fill(BLACK)
     world.groups_clear()
 
+
 def draw_fog(obj, screen):
     obj.draw(screen)
 
 
 
-def main_game_loop(screen, size):
+def main_game_loop(screen, size, audio):
+    audio.unpause_music()
+
     pg.event.set_allowed([pg.QUIT])
 
     clock = pg.time.Clock()
@@ -79,7 +82,6 @@ def main_game_loop(screen, size):
 
     running = True
     while running:
-        time_start = time.time()
         clear_screen(screen, floor_surf, game_surf, gui_surf, world)
         draw_fog(fog, gui_surf)
 
@@ -106,7 +108,6 @@ def main_game_loop(screen, size):
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
 
-        time_end = time.time()
         # print(f"FPS {1//(time_end - time_start):.1f}")
 
 

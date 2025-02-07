@@ -75,9 +75,21 @@
       "right": "./DATA/reses/player/player_right.png"}
     }
   },
+  "start_screen":{
+    "game_name": "The Dungeon",
+    "authors": "project created by: @m6rshm3ll0w, @st0rmeed",
+    "start": "START"
+  },
   "dirs": {
     "DB": "./DATA/Dbase.db3",
     "req": "./DATA/requirements.txt",
-    "comment": "относительно main.py"
+    "comment": "относительно main.py",
+    "main_theme": "./DATA/audio/main_theme.mp3",
+    "start_screen": {
+      "path": "./DATA/reses/start_end_pictures/start_alfa.png",
+      "agat8": "./DATA/fonts/agat-8.ttf",
+      "fibberish": "./DATA/fonts/fibberish.ttf",
+      "keleti": "./DATA/fonts/Keleti-Regular.ttf"
+    }
   }
 }
