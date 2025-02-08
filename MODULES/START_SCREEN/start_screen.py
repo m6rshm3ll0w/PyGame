@@ -7,7 +7,7 @@ def StartScreen(screen, size, audio):
 
     screen_width, screen_height = size
 
-    image = pygame.image.load(CONFIG["dirs"]["fonts"]["path"])
+    image = pygame.image.load(CONFIG["dirs"]["pictures"]["main_menu"])
     image = pygame.transform.scale(image, (screen_width, screen_height))
 
     start_click_area = pygame.Rect(340, 520, 115, 45)

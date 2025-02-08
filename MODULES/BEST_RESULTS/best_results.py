@@ -3,25 +3,24 @@ import pygame
 import sqlite3
 import json
 import sys
+from MODULES.init import CONFIG
 
 
 class ScoreTable:
     def __init__(self):
-        with open('./DATA/settings.json', "r", encoding="UTF-8") as json_data:
-            self.config = json.load(json_data)
+        self.CONFIG = CONFIG
 
         pygame.init()
-        self.size = (self.config["pygame"]["width"], self.config["pygame"]["height"])
+        self.size = (self.CONFIG["pygame"]["width"], self.CONFIG["pygame"]["height"])
         self.screen = pygame.display.set_mode((int(self.size[0]), int(self.size[1])))
         self.WIDTH, self.HEIGHT = self.screen.get_size()
 
-        self.image = pygame.image.load('./DATA/reses/best_result_picture/best_result.png')
+        self.image = pygame.image.load(self.CONFIG['dirs']['pictures']['best_results'])
         self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
 
-        self.font1 = pygame.font.Font(self.config['dirs']['fonts']['lemano'], 30)
-        self.font2 = pygame.font.Font(self.config['dirs']['fonts']['lemano'], 30)
+        self.font = pygame.font.Font(self.CONFIG['dirs']['fonts']['agat8'], 30)
         self.back = 'BACK'
-        self.back_surface = self.font2.render(self.back, True, 'white')
+        self.back_surface = self.font.render(self.back, True, 'white')
         self.back_rect = self.back_surface.get_rect(topleft=(415, 530))
         self.back_click_area = pygame.Rect(390, 518, 120, 50)
 
@@ -45,7 +44,7 @@ class ScoreTable:
         ]
 
     def get_table_data(self):
-        con = sqlite3.connect('./DATA/reses/results/results.sqlite')
+        con = sqlite3.connect(self.CONFIG['dirs']['database'])
         cur = con.cursor()
         data = list(cur.execute('''
             SELECT 
@@ -60,7 +59,7 @@ class ScoreTable:
 
     def draw_table(self):
         for i, header in enumerate(self.headers):
-            text = self.font1.render(header, True, self.WHITE)
+            text = self.font.render(header, True, self.WHITE)
             if i == 0:
                 X1 = self.positions[1] - 140
                 text_width = text.get_width()
@@ -77,18 +76,18 @@ class ScoreTable:
             y = self.HEADER_HEIGHT + 40 + index * self.ROW_HEIGHT
 
             place = str(index + 1)
-            text = self.font2.render(place, True, self.GRAY)
+            text = self.font.render(place, True, self.GRAY)
             X1 = self.positions[1] - 180
             text_width = text.get_width()
             x = X1 - text_width - 10
             self.screen.blit(text, (x, y))
 
-            text = self.font2.render(name, True, self.GRAY)
+            text = self.font.render(name, True, self.GRAY)
             X1_line = self.positions[1] + 40
             x = X1_line + 20
             self.screen.blit(text, (x, y))
 
-            text = self.font2.render(str(time) + ' sec', True, self.GRAY)
+            text = self.font.render(str(time) + ' sec', True, self.GRAY)
             X2_line = self.positions[2] + 105
             x = X2_line + 20
             self.screen.blit(text, (x, y))

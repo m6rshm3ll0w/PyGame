@@ -1,50 +1,50 @@
 {
-  "name": "PyGame",
+  "name": "TheDungeon",
   "version": "0.1a",
   "world_gen": {
     "size": 55,
     "s-p_dist": 25,
     "iterations": 30,
     "elements": {
-      "wall": {"ej": "⬜", "perc": 40},
-      "floor": {"ej": "⬛", "perc": 60},
-      "empty": {"ej": "+", "perc": 100},
-      "start_point": {"ej": "⭐"},
-      "end_point": {"ej": "*️⃣"}
+      "wall": { "ej": "⬜", "perc": 40 },
+      "floor": { "ej": "⬛", "perc": 60 },
+      "empty": { "ej": "+", "perc": 100 },
+      "start_point": { "ej": "⭐" },
+      "end_point": { "ej": "*️⃣" }
     },
     "tile_set": {
       "size": 32,
       "base_size": 32,
       "comment": "format: row; column ---- start from 1 ---------- splitter > $ <",
       "tiles": {
-        "floor":                {"coord": [2, 6], "ej": "F"},
-        "O-wall":               {"coord": [1, 1], "ej": "W-O"},
+        "floor": { "coord": [2, 6], "ej": "F" },
+        "O-wall": { "coord": [1, 1], "ej": "W-O" },
 
-        "up-left-corner":       {"coord": [2, 1], "ej": "C-UL"},
-        "up-right-corner":      {"coord": [2, 2], "ej": "C-UR"},
-        "down-left-corner":     {"coord": [3, 1], "ej": "C-DL"},
-        "down-right-corner":    {"coord": [3, 2], "ej": "C-DR"},
+        "up-left-corner": { "coord": [2, 1], "ej": "C-UL" },
+        "up-right-corner": { "coord": [2, 2], "ej": "C-UR" },
+        "down-left-corner": { "coord": [3, 1], "ej": "C-DL" },
+        "down-right-corner": { "coord": [3, 2], "ej": "C-DR" },
 
-        "T-down":               {"coord": [3, 3], "ej": "T-D"},
-        "T-up":                 {"coord": [3, 4], "ej": "T-U"},
-        "T-left":               {"coord": [1, 6], "ej": "T-L"},
-        "T-right":              {"coord": [2, 3], "ej": "T-R"},
+        "T-down": { "coord": [3, 3], "ej": "T-D" },
+        "T-up": { "coord": [3, 4], "ej": "T-U" },
+        "T-left": { "coord": [1, 6], "ej": "T-L" },
+        "T-right": { "coord": [2, 3], "ej": "T-R" },
 
-        "4-corners":            {"coord": [2, 4], "ej": "C-U"},
+        "4-corners": { "coord": [2, 4], "ej": "C-U" },
 
-        "horizontal-left-end":  {"coord": [1, 2], "ej": "H-LE"},
-        "horizontal-wall":      {"coord": [1, 3], "ej": "H-W"},
-        "horizontal-right-end": {"coord": [1, 4], "ej": "H-RE"},
+        "horizontal-left-end": { "coord": [1, 2], "ej": "H-LE" },
+        "horizontal-wall": { "coord": [1, 3], "ej": "H-W" },
+        "horizontal-right-end": { "coord": [1, 4], "ej": "H-RE" },
 
-        "vertical-up-end":      {"coord": [1, 5], "ej": "V-UE"},
-        "vertical-wall":        {"coord": [2, 5], "ej": "V-W"},
-        "vertical-down-end":    {"coord": [3, 5], "ej": "V-DE"},
+        "vertical-up-end": { "coord": [1, 5], "ej": "V-UE" },
+        "vertical-wall": { "coord": [2, 5], "ej": "V-W" },
+        "vertical-down-end": { "coord": [3, 5], "ej": "V-DE" },
 
-        "end-point":            {"coord": [2, 10], "ej": "P-E"},
-        "start-point":          {"coord": [3, 10], "ej": "P-S"},
+        "end-point": { "coord": [2, 10], "ej": "P-E" },
+        "start-point": { "coord": [3, 10], "ej": "P-S" },
 
-        "spawner":              {"coord": [2, 9], "ej": "S"},
-        "chest":                {"coord": [3, 9], "ej": "C"}
+        "spawner": { "coord": [2, 9], "ej": "S" },
+        "chest": { "coord": [3, 9], "ej": "C" }
       }
     }
   },
@@ -61,37 +61,42 @@
   "player": {
     "speed": 200,
     "width": 60,
-    "height": 60, 
-    "animation_sprites":7,
-    "animation_fps":7,
+    "height": 60,
+    "animation_sprites": 7,
+    "animation_fps": 500,
     "sprite_list": {
       "size": 64,
       "cols": 7,
       "rows": 1,
-      "paths":{
-      "up": "./DATA/reses/player/player_top.png",
-      "down": "./DATA/reses/player/player_back.png",
-      "left": "./DATA/reses/player/player_left.png",
-      "right": "./DATA/reses/player/player_right.png"}
+      "paths": {
+        "up": "./DATA/reses/player/player_top.png",
+        "down": "./DATA/reses/player/player_back.png",
+        "left": "./DATA/reses/player/player_left.png",
+        "right": "./DATA/reses/player/player_right.png"
+      }
     }
   },
-  "start_screen":{
+  "start_screen": {
     "game_name": "The Dungeon",
     "authors": "project created by: @m6rshm3ll0w, @st0rmeed",
     "start": "START",
     "best": "BEST"
   },
   "dirs": {
-    "DB": "./DATA/Dbase.db3",
     "req": "./DATA/requirements.txt",
     "comment": "относительно main.py",
-    "main_theme": "./DATA/audio/main_theme.mp3",
     "fonts": {
-      "path": "./DATA/reses/start_end_pictures/start.png",
       "agat8": "./DATA/fonts/agat-8.ttf",
       "fibberish": "./DATA/fonts/fibberish.ttf",
-      "keleti": "./DATA/fonts/Keleti-Regular.ttf",
-      "lemano": "DATA/fonts/LeMano.ttf"
+      "keleti": "./DATA/fonts/Keleti-Regular.ttf"
+    },
+    "database": "./DATA/reses/results/results.sqlite",
+    "pictures": {
+      "main_menu": "./DATA/reses/start_end_pictures/start.png",
+      "best_results": "./DATA/reses/best_result_picture/best_result.png"
+    },
+    "sound": {
+      "main_theme": "./DATA/audio/main_theme.mp3"
     }
   }
 }
