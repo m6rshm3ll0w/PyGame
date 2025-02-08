@@ -16,12 +16,14 @@ class Audio_Player:
         pygame.mixer.music.play(-1)             
     
     def pause_music(self):
-        print("Pausing audio")
-        pygame.mixer.music.pause()
-    
-    def unpause_music(self):
-        print("Unpausing audio")
-        pygame.mixer.music.unpause()
+        if self.running:
+            print("Pausing audio")
+            pygame.mixer.music.pause()
+            self.running = False
+        else:
+            print("Unpausing audio")
+            pygame.mixer.music.unpause()
+            self.running = True    
     
     def stop_music(self):
         print("Pausing audio")
