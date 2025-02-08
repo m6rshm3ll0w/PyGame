@@ -78,7 +78,7 @@ class Player(pg.sprite.Sprite):
         return data_list
     
     def frame_load(self):
-        image = self.data_list[self.current_direction_key][self.current_image_index]
+        image = self.data_list[self.current_direction][self.current_image_index]
         self.image = pg.image.load(image).convert_alpha()
         self.img = pg.transform.scale(self.image, (self.desired_width, self.desired_height))
         self.rect = self.image.get_rect()
@@ -102,7 +102,7 @@ class Player(pg.sprite.Sprite):
                     self.last_direction_key = self.move_keys[key]
                     break
 
-        prev_direction = self.current_direction
+        # prev_direction = self.current_direction 
 
         if current_key == "up":
             self.y -= speed_per_frame
@@ -117,9 +117,7 @@ class Player(pg.sprite.Sprite):
             self.x += speed_per_frame
             self.current_direction = 'right'
         else:
-            self.current_direction = 'up'
-
-        if prev_direction != self.current_direction:
+            self.current_direction = "down"
             self.current_image_index = 0
 
         if current_key is not None:
