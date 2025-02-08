@@ -1,6 +1,5 @@
 import pygame
 import pygame as pg
-import time
 
 
 from MODULES.ENTITYES.player import Player
@@ -64,8 +63,8 @@ def draw_fog(obj, screen):
 
 
 
-def MainGameLoop(screen, size, audio):
-    audio.unpause_music()
+def main_game_loop(screen, size, audio):
+    audio.pause_music()
 
     pg.event.set_allowed([pg.QUIT])
 
@@ -79,6 +78,7 @@ def MainGameLoop(screen, size, audio):
     world.render_wall()
 
     fog = fog_of_game("./DATA/reses/fog/fog.png")
+    st_time = pg.time.get_ticks()
 
     running = True
     while running:
@@ -87,7 +87,7 @@ def MainGameLoop(screen, size, audio):
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                return 'quit'
+                running = False
 
         keys = pygame.key.get_pressed()
 
@@ -99,6 +99,14 @@ def MainGameLoop(screen, size, audio):
             world.center_point(200//FPS, "+x")
         if (center[1] - player.y) >= 64:
             world.center_point(200//FPS, "+y")
+
+        if keys[pygame.K_t] and audio.running is True and pg.time.get_ticks() - st_time > 500:
+            audio.pause_music()
+            st_time = pygame.time.get_ticks()
+
+        elif keys[pygame.K_y] and audio.running is False and pg.time.get_ticks() - st_time > 500:
+            audio.pause_music()
+            st_time = pygame.time.get_ticks()
 
 
         update_map(world, floor_surf, game_surf)
