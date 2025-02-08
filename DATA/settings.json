@@ -82,6 +82,10 @@
     "start": "START",
     "best": "BEST"
   },
+  "main_game": {
+    "moving": "MOVING",
+    "sound": "ON/OFF SOUND"
+  },
   "dirs": {
     "req": "./DATA/requirements.txt",
     "comment": "относительно main.py",
@@ -93,10 +97,16 @@
     "database": "./DATA/reses/results/results.sqlite",
     "pictures": {
       "main_menu": "./DATA/reses/start_end_pictures/start.png",
-      "best_results": "./DATA/reses/best_result_picture/best_result.png"
+      "best_results": "./DATA/reses/best_result_picture/best_result.png",
+      "white_key_w": "./DATA/reses/keys/white_key_w.png",
+      "white_key_t": "./DATA/reses/keys/white_key_t.png",
+      "white_key_a": "./DATA/reses/keys/white_key_a.png",
+      "white_key_s": "./DATA/reses/keys/white_key_s.png",
+      "white_key_d": "./DATA/reses/keys/white_key_d.png"
     },
-    "sound": {
-      "main_theme": "./DATA/audio/main_theme.mp3"
+    "sounds": {
+      "start_screen": "./DATA/audio/start_screen.mp3",
+      "game": "./DATA/audio/game.mp3"
     }
   }
 }

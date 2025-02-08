@@ -5,30 +5,26 @@ from MODULES.init import CONFIG
 class AudioPlayer:
     def __init__(self):
         pygame.mixer.init()
-        self.running = True
 
     def load_music(self, music_file):
-        print("Loading audio")
         pygame.mixer.music.load(music_file)
         pygame.mixer.music.set_volume(0.3)
 
     def play_music(self):
-        print("Running audio")
+        self.is_running = True
         pygame.mixer.music.play(-1)
 
-    def pause_music(self):
-        print("Pausing audio")
-        pygame.mixer.music.pause()
-
-    def unpause_music(self):
-        print("Unpausing audio")
-        pygame.mixer.music.unpause()
+    def pause_unpause_music(self):
+        if self.is_running:
+            pygame.mixer.music.pause()
+        else:
+            pygame.mixer.music.unpause()
+        self.is_running = not self.is_running
 
     def stop_music(self):
-        print("Pausing audio")
         pygame.mixer.music.stop()
 
-    def run(self, path=CONFIG["dirs"]["sound"]["main_theme"]):
+    def run(self, path=CONFIG["dirs"]["sounds"]["start_screen"]):
         print("Running audio")
         self.load_music(path)
         self.play_music()

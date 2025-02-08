@@ -2,10 +2,10 @@ import pygame
 from MODULES.init import CONFIG
 
 
-def StartScreen(screen, size, audio):
-    audio.run()
-
+def start_screen(screen, size, audio):
     screen_width, screen_height = size
+
+    agat8 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 32)
 
     image = pygame.image.load(CONFIG["dirs"]["pictures"]["main_menu"])
     image = pygame.transform.scale(image, (screen_width, screen_height))
@@ -16,7 +16,6 @@ def StartScreen(screen, size, audio):
     keleti = pygame.font.Font(CONFIG["dirs"]["fonts"]["keleti"], 90)
     fibberish = pygame.font.Font(
         CONFIG["dirs"]["fonts"]["fibberish"], 30)
-    agat8 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 32)
 
     text_surface = keleti.render(
         CONFIG["start_screen"]["game_name"], True, 'white')
@@ -38,14 +37,16 @@ def StartScreen(screen, size, audio):
             if event.type == pygame.QUIT:
                 audio.pause_music()
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    audio.pause_unpause_music()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if start_click_area.collidepoint(event.pos):
-                        audio.pause_music()
+                        audio.stop_music()
                         return "main_game"
                     elif best_results_click_area.collidepoint(event.pos):
-                        audio.pause_music()
                         return 'best_results'
 
         screen.blit(image, (0, 0))

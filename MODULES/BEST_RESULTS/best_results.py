@@ -11,12 +11,16 @@ class ScoreTable:
         self.CONFIG = CONFIG
 
         pygame.init()
-        self.size = (self.CONFIG["pygame"]["width"], self.CONFIG["pygame"]["height"])
-        self.screen = pygame.display.set_mode((int(self.size[0]), int(self.size[1])))
+        self.size = (self.CONFIG["pygame"]["width"],
+                     self.CONFIG["pygame"]["height"])
+        self.screen = pygame.display.set_mode(
+            (int(self.size[0]), int(self.size[1])))
         self.WIDTH, self.HEIGHT = self.screen.get_size()
 
-        self.image = pygame.image.load(self.CONFIG['dirs']['pictures']['best_results'])
-        self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
+        self.image = pygame.image.load(
+            self.CONFIG['dirs']['pictures']['best_results'])
+        self.image = pygame.transform.scale(
+            self.image, (self.WIDTH, self.HEIGHT))
 
         self.font = pygame.font.Font(self.CONFIG['dirs']['fonts']['agat8'], 30)
         self.back = 'BACK'
@@ -106,12 +110,15 @@ class ScoreTable:
                              (self.TABLE_MARGIN, y),
                              (self.WIDTH - self.TABLE_MARGIN, y), 2)
 
-    def run(self):
+    def run(self, audio):
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return 'quit'
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_t:
+                        audio.pause_unpause_music()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if self.back_click_area.collidepoint(event.pos):
@@ -126,5 +133,3 @@ class ScoreTable:
 
         pygame.quit()
         sys.exit()
-
-
