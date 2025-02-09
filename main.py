@@ -4,6 +4,7 @@ from MODULES.RENDER.main import main_game_loop
 from MODULES.BEST_RESULTS.best_results import ScoreTable
 from MODULES.START_SCREEN.start_screen import start_screen
 from MODULES.audio import AudioPlayer
+from MODULES.END_SCREEN.end_screen import EndScreen
 
 size = (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"])
 f_size = (CONFIG["pygame"]["f_width"], CONFIG["pygame"]["f_height"])
@@ -28,12 +29,16 @@ if __name__ == "__main__":
         if flag is None or flag == "quit":
             break
 
-        if flag == "main_game":
+        if flag == "menu":
             game_flag = main_game_loop(scr, size)
             if game_flag == "quit":
                 break
         elif flag == "best_results":
             flag = ScoreTable().run(audio)
+            if flag == 'quit':
+                break
+        elif flag == 'end_screen':
+            flag = EndScreen(120).run(audio)
             if flag == 'quit':
                 break
 

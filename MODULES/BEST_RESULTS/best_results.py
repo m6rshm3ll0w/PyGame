@@ -1,7 +1,5 @@
-import subprocess
 import pygame
 import sqlite3
-import json
 import sys
 from MODULES.init import CONFIG
 
@@ -23,7 +21,7 @@ class ScoreTable:
             self.image, (self.WIDTH, self.HEIGHT))
 
         self.font = pygame.font.Font(self.CONFIG['dirs']['fonts']['agat8'], 30)
-        self.back = 'BACK'
+        self.back = CONFIG['best_results']['back']
         self.back_surface = self.font.render(self.back, True, 'white')
         self.back_rect = self.back_surface.get_rect(topleft=(415, 530))
         self.back_click_area = pygame.Rect(390, 518, 120, 50)
@@ -122,7 +120,7 @@ class ScoreTable:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if self.back_click_area.collidepoint(event.pos):
-                            return 'main_menu'
+                            return 'menu'
 
             self.screen.blit(self.image, (0, 0))
             self.screen.blit(self.back_surface, self.back_rect)

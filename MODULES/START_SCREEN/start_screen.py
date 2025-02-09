@@ -40,6 +40,8 @@ def start_screen(screen, size, audio):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     audio.pause_unpause_music()
+                # if event.key == pygame.K_s:
+                #     return 'end_screen'
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:

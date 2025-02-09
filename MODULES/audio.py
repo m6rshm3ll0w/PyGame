@@ -25,6 +25,5 @@ class AudioPlayer:
         pygame.mixer.music.stop()
 
     def run(self, path=CONFIG["dirs"]["sounds"]["start_screen"]):
-        print("Running audio")
         self.load_music(path)
         self.play_music()
