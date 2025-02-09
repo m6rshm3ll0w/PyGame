@@ -1,29 +1,32 @@
 import pygame
 import pygame as pg
-import time
-
+from pygame.time import Clock
 
 from MODULES.ENTITYES.player import Player
-from MODULES.RENDER.fog import fog_of_game
+from MODULES.RENDER.fog import FogOfGame
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
 from MODULES.init import CONFIG, BLACK
+from MODULES.audio import AudioPlayer
 
 FPS = int(CONFIG["pygame"]["FPS"])
+SIZE = CONFIG['world_gen']['tile_set']["size"]
 
 
-def update_map(World, screen, game_surf):
+def update_map(World: WorldClass, screen: pygame.Surface, game_surf: pygame.Surface) -> None:
     World.draw_floor()
     World.draw_wall() 
-    FLOOR = World.FLOOR
+
+    FLOOR = World.floor
     FLOOR.draw(screen)
 
-    WALL = World.WALL
+    WALL = World.wall
     WALL.draw(game_surf)
     WALL.update()
 
+    World.draw_points(game_surf)
 
-def set_up_layers(size):
+def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surface, pygame.Surface, pygame.Surface]:
     floor_surf = pygame.surface.Surface((int(size[0]), int(size[1])))
     game_surf = pygame.surface.Surface((int(size[0]), int(size[1])))
     gui_surf = pygame.surface.Surface((int(size[0]), int(size[1])))
@@ -36,36 +39,49 @@ def set_up_layers(size):
     return center, floor_surf, game_surf, gui_surf
 
 
-def create_object(screen, game_surf):
+def create_object(screen: pygame.Surface, 
+                  game_surf: pygame.Surface) -> tuple[WorldClass, Player]:
     world = WorldClass(MapGeneration(), screen, game_surf)
-    player = Player(x=int(game_surf.get_width() // 2), y=int(game_surf.get_height() // 2))
+    
+    coords_tiled = (0, 0)
+    corner = world.get_center_tile_corner()
+    center = (coords_tiled[0] * SIZE + corner[0] + (world.DRAW_DIST) * SIZE, 
+                coords_tiled[1] * SIZE + corner[1] + (world.DRAW_DIST) * SIZE)
+
+    player = Player(x=center[0], y=center[1])
 
     return world, player
 
 
-def update_screen(screen, floor_surf, game_surf, gui_surf, clock):
+def update_screen(screen: pygame.Surface, 
+                  floor_surf: pygame.Surface, 
+                  game_surf: pygame.Surface, 
+                  gui_surf: pygame.Surface, 
+                  clock: Clock) -> None:
     clock.tick(int(FPS))
-    game_surf.blit(gui_surf, (0, 0))
+    # game_surf.blit(gui_surf, (0, 0))
     floor_surf.blit(game_surf, (0, 0))
     screen.blit(floor_surf, (0, 0))
     pygame.display.flip()
 
 
-def clear_screen(screen, floor_surf, game_surf, gui_surf, world):
+def clear_screen(screen: pygame.Surface, 
+                 floor_surf: pygame.Surface, 
+                 game_surf: pygame.Surface, 
+                 gui_surf: pygame.Surface) -> None:
     screen.fill(BLACK)
     floor_surf.fill(BLACK)
     game_surf.fill(BLACK)
     gui_surf.fill(BLACK)
-    world.groups_clear()
 
 
-def draw_fog(obj, screen):
+def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
     obj.draw(screen)
 
 
 
-def MainGameLoop(screen, size, audio):
-    audio.unpause_music()
+def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer) -> None | str:
+    # audio.unpause_music()
 
     pg.event.set_allowed([pg.QUIT])
 
@@ -75,14 +91,14 @@ def MainGameLoop(screen, size, audio):
 
     world, player = create_object(floor_surf, game_surf)
     world.generate_world_map()
-    world.render_floor()
-    world.render_wall()
+    world.change_start_point()
+    world.pre_render_textures()
 
-    fog = fog_of_game("./DATA/reses/fog/fog.png")
+    fog = FogOfGame("./DATA/reses/fog/fog.png")
 
     running = True
     while running:
-        clear_screen(screen, floor_surf, game_surf, gui_surf, world)
+        clear_screen(screen, floor_surf, game_surf, gui_surf)
         draw_fog(fog, gui_surf)
 
         for event in pg.event.get():
@@ -103,7 +119,7 @@ def MainGameLoop(screen, size, audio):
 
         update_map(world, floor_surf, game_surf)
 
-        player.update(keys, center, world.WALL)
+        player.update(keys, center, world.wall)
         player.draw(game_surf)
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)

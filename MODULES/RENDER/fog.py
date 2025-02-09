@@ -1,7 +1,7 @@
 import pygame as pg
 
-class fog_of_game(pg.sprite.Sprite):
-    def __init__(self, path):
+class FogOfGame(pg.sprite.Sprite):
+    def __init__(self, path: str) -> None:
         pg.sprite.Sprite.__init__(self)
         img = pg.image.load(path)
         self.image = img
@@ -12,5 +12,5 @@ class fog_of_game(pg.sprite.Sprite):
         self.rect.x = 0
         self.rect.y = 0
         
-    def draw(self, screen):
+    def draw(self, screen: pg.Surface) -> None:
         screen.blit(self.image, self.rect)

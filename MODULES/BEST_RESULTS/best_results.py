@@ -1,7 +1,5 @@
-import subprocess
 import pygame
 import sqlite3
-import json
 import sys
 from MODULES.init import CONFIG
 
@@ -37,7 +35,7 @@ class ScoreTable:
         self.GRAY = (200, 200, 200)
         self.LINE_COLOR = (50, 50, 50)
 
-        self.positions = [
+        self.positions: list[int] = [
             self.TABLE_MARGIN + 70,
             self.TABLE_MARGIN + self.COLUMN_WIDTH + 50,
             self.TABLE_MARGIN + self.COLUMN_WIDTH * 2
@@ -60,16 +58,17 @@ class ScoreTable:
     def draw_table(self):
         for i, header in enumerate(self.headers):
             text = self.font.render(header, True, self.WHITE)
+            x = 0
             if i == 0:
-                X1 = self.positions[1] - 140
+                x1 = self.positions[1] - 140
                 text_width = text.get_width()
-                x = X1 - text_width - 10
+                x = x1 - text_width - 10
             elif i == 1:
-                X1 = self.positions[1]
-                x = X1 + 20
+                x1 = self.positions[1]
+                x = x1 + 20
             elif i == 2:
-                X2 = self.positions[2] + 100
-                x = X2 + 20
+                x2 = self.positions[2] + 100
+                x = x2 + 20
             self.screen.blit(text, (x, self.HEADER_HEIGHT))
 
         for index, (name, time) in enumerate(self.data):

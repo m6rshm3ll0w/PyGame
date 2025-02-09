@@ -1,7 +1,9 @@
+from csv import Error
 import math
 
 from pydantic import BaseModel
 import random
+
 from MODULES.init import CONFIG
 from MODULES.MAP.tileset_use import MAP2TILEMAP
 
@@ -32,37 +34,38 @@ class Spawner(BaseModel):
 
 class World(BaseModel):
     size: int
-    elements: dict
+    elements: dict[str, dict[str, str | int]]
     start_point: dict[str, int] = {"row": 10, "col": 10}
-    end_point: dict[str, int] = {"row": 10, "col": 10}
-    chests: list[Chest] = None
-    spawners: list[Spawner] = None
-
+    end_point: dict[str, int] = {"row": 20, "col": 20}
+    # chests: list[Chest]
+    # spawners: list[Spawner]
 
 #  Генерация карты ↓↓↓↓↓↓↓
 class MapGeneration:
     def __init__(self):
-        self.data = None
-        self.TILEMAP = None
+        self.data: World
+
+        self.tilemap: list[list[str]] = []
         self.ELEMENTS = CONFIG['world_gen']['elements']
         self.WIDTH = self.HEIGHT = CONFIG['world_gen']['size']
         self.ITERATIONS = CONFIG['world_gen']['iterations']
-        self.MAP = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
         self.DIST = CONFIG['world_gen']['s-p_dist']
 
-    def get_neighbors(self, row, col):
-        neighbors = []
+        self.map: list[list[str]] = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
+
+    def get_neighbors(self, row: int, col: int) -> list[str]:
+        neighbors:list[str] = []
         for dr in [-1, 0, 1]:
             for dc in [-1, 0, 1]:
                 if dr == 0 and dc == 0:
                     continue
                 nr, nc = row + dr, col + dc
                 if 0 <= nr < self.HEIGHT and 0 <= nc < self.WIDTH:
-                    neighbors.append(self.MAP[nr][nc])
+                    neighbors.append(self.map[nr][nc])
         return neighbors
 
-    def check_rules(self, row, col):
-        current_tile = self.MAP[row][col]
+    def check_rules(self, row: int, col: int) -> str:
+        current_tile = self.map[row][col]
         neighbors = self.get_neighbors(row, col)
 
         if current_tile == self.ELEMENTS["empty"]["ej"]:
@@ -88,8 +91,8 @@ class MapGeneration:
 
         return current_tile
 
-    def search_points(self):
-        points_of_end = []
+    def search_points(self) -> tuple[dict[str, int], dict[str, int]]:
+        points_of_end: list[tuple[int, int]] = []
 
         for row in range(self.HEIGHT):
             for col in range(self.WIDTH):
@@ -105,7 +108,8 @@ class MapGeneration:
         er = points_of_end[r_p][0]
         ec = points_of_end[r_p][1]
 
-        points_of_start = []
+        points_of_start: list[tuple[int, int]] = []
+
         for row in range(self.HEIGHT):
             for col in range(self.WIDTH):
                 neighbors = self.get_neighbors(row, col)
@@ -119,67 +123,67 @@ class MapGeneration:
 
         r_p = random.randint(a=0, b=total_points)
 
-        sr = points_of_start[r_p][0]
-        sc = points_of_start[r_p][1]
+        sr: int = points_of_start[r_p][0]
+        sc: int = points_of_start[r_p][1]
 
         return {"row": er, "col": ec}, {"row": sr, "col": sc}
 
-    def generate_iteration(self):
-        new_map = [_row[:] for _row in self.MAP]
+    def generate_iteration(self) -> list[list[str]]:
+        new_map = [_row[:] for _row in self.map]
         for row in range(self.HEIGHT):
             for col in range(self.WIDTH):
                 new_map[row][col] = self.check_rules(row, col)
         return new_map
 
 
-    def add_borders(self):
-        self.MAP[0] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
-        self.MAP[-1] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
+    def add_borders(self) -> None:
+        self.map[0] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
+        self.map[-1] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
 
         for row in range(self.HEIGHT):
-            self.MAP[row][0] = self.ELEMENTS["wall"]["ej"]
-            self.MAP[row][-1] = self.ELEMENTS["wall"]["ej"]
+            self.map[row][0] = self.ELEMENTS["wall"]["ej"]
+            self.map[row][-1] = self.ELEMENTS["wall"]["ej"]
 
         self.generate_iteration()
 
 
-    def generate_world(self):
+    def generate_world(self) -> None:
         for _ in range(self.ITERATIONS):
-            self.MAP = self.generate_iteration()
+            self.map = self.generate_iteration()
 
         self.add_borders()
 
         end_p, start_p = self.search_points()
-        self.MAP[end_p["row"]][end_p["col"]] = self.ELEMENTS["end_point"]["ej"]
-        self.MAP[start_p["row"]][start_p["col"]] = self.ELEMENTS["start_point"]["ej"]
+        self.map[end_p["row"]][end_p["col"]] = self.ELEMENTS["end-point"]["ej"]
+        self.map[start_p["row"]][start_p["col"]] = self.ELEMENTS["start-point"]["ej"]
         self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
                           end_point=end_p)
 
 
         ref = MAP2TILEMAP()
-        ref.reformat(self.MAP)
+        ref.reformat(self.map)
 
-        self.TILEMAP = ref.get_tilemap()
+        self.tilemap = ref.get_tilemap()
 
         with open("./DATA/world/map-simple.dat", "w", encoding="UTF-8") as map_file:
             for row in range(self.HEIGHT):
-                map_file.write("".join(self.MAP[row]) + "\n")
+                map_file.write("".join(self.map[row]) + "\n")
 
         with open("./DATA/world/map-tiled.dat", "w", encoding="UTF-8") as map_file:
             for row in range(self.HEIGHT):
-                map_file.write("$".join(self.TILEMAP[row]) + "\n")
+                map_file.write("$".join(self.tilemap[row]) + "\n")
 
         with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
             conf.write(self.data.model_dump_json())
 
-    def get_map(self):
-        if self.MAP is None and self.TILEMAP is None:
-            raise ValueError("You dont generated the map!!!!")
-        else:
-            return self.TILEMAP
+    def get_map(self) -> list[list[str]]:
+            try:
+                return self.tilemap
+            except Error:
+                raise ValueError("Tilemap not generated yet!")
 
-    def get_data(self):
-        if self.data is None:
-            raise ValueError("You dont generated the map!!!!")
-        else:
+    def get_data(self) -> World:
+        try:
             return self.data
+        except Error:
+            raise ValueError("You don't generated the map!!!!")

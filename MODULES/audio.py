@@ -1,13 +1,12 @@
 import pygame
 from MODULES.init import CONFIG
 
-
 class AudioPlayer:
     def __init__(self):
         pygame.mixer.init()
         self.running = True
 
-    def load_music(self, music_file):
+    def load_music(self, music_file:str):
         print("Loading audio")
         pygame.mixer.music.load(music_file)
         pygame.mixer.music.set_volume(0.3)
@@ -28,7 +27,7 @@ class AudioPlayer:
         print("Pausing audio")
         pygame.mixer.music.stop()
 
-    def run(self, path=CONFIG["dirs"]["sound"]["main_theme"]):
+    def run(self, path:str=CONFIG["dirs"]["sound"]["main_theme"]):
         print("Running audio")
         self.load_music(path)
         self.play_music()

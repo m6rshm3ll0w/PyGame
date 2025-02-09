@@ -6,33 +6,47 @@ class MAP2TILEMAP:
         self.ELEMENTS = CONFIG['world_gen']['elements']
         self.WIDTH = self.HEIGHT = CONFIG['world_gen']['size']
         self.TILES = CONFIG['world_gen']['tile_set']["tiles"]
+        
         self.tile_map = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
-        self.MAP = None
+        self.map: list[list[str]] = []
 
-    def get_tile(self, row, col):
+    def get_tile(self, row: int, col: int) -> str:
         if 0 <= row < self.HEIGHT and 0 <= col < self.WIDTH:
-            if not self.MAP[row][col] in [self.ELEMENTS["start_point"]["ej"], self.ELEMENTS["end_point"]["ej"]]:
-                return self.MAP[row][col]
+            # if not self.MAP[row][col] in [self.ELEMENTS["start_point"]["ej"], self.ELEMENTS["end_point"]["ej"]]:
+            return self.map[row][col]
         else:
             return self.ELEMENTS["floor"]["ej"]
 
 
-    def find_tile(self, row, col):
-        current_tile = self.MAP[row][col]
+    def find_tile(self, row: int, col: int) -> str:
+        current_tile = self.map[row][col]
 
         RightBlock = self.get_tile(row, col + 1)
         LeftBlock = self.get_tile(row, col - 1)
         UpBlock = self.get_tile(row + 1, col)
         DownBlock = self.get_tile(row - 1, col)
 
+        if RightBlock == self.ELEMENTS["end-point"]["ej"] or RightBlock == self.ELEMENTS["start-point"]["ej"]:
+            RightBlock = self.ELEMENTS["floor"]["ej"]
+            print(1)
+        if LeftBlock == self.ELEMENTS["end-point"]["ej"] or LeftBlock == self.ELEMENTS["start-point"]["ej"]:
+            LeftBlock = self.ELEMENTS["floor"]["ej"]
+            print(1)
+        if UpBlock == self.ELEMENTS["end-point"]["ej"] or UpBlock == self.ELEMENTS["start-point"]["ej"]:
+            UpBlock = self.ELEMENTS["floor"]["ej"]
+            print(1)
+        if DownBlock == self.ELEMENTS["end-point"]["ej"] or DownBlock == self.ELEMENTS["start-point"]["ej"]:
+            DownBlock = self.ELEMENTS["floor"]["ej"]
+            print(1)
+
 
         if current_tile == self.ELEMENTS["floor"]["ej"]:
             return self.TILES["floor"]["ej"]
 
-        if current_tile == self.ELEMENTS["start_point"]["ej"]:
+        elif current_tile == self.ELEMENTS["start-point"]["ej"]:
             return self.TILES["floor"]["ej"]
 
-        if current_tile == self.ELEMENTS["end_point"]["ej"]:
+        elif current_tile == self.ELEMENTS["end-point"]["ej"]:
             return self.TILES["floor"]["ej"]
 
         elif current_tile == self.ELEMENTS["wall"]["ej"]:
@@ -101,8 +115,8 @@ class MAP2TILEMAP:
 
         return self.TILES["O-wall"]["ej"]
 
-    def reformat(self, MAP):
-        self.MAP = MAP
+    def reformat(self, MAP: list[list[str]]):
+        self.map = MAP
         for row in range(self.HEIGHT):
             for col in range(self.WIDTH):
                 self.tile_map[row][col] = self.find_tile(row, col)

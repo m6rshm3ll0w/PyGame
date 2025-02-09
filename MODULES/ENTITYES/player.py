@@ -1,27 +1,31 @@
 import os
-import sys
-import time
 from PIL import Image
-from pydantic.type_adapter import P
 import pygame as pg
+from pygame.key import ScancodeWrapper
+from MODULES.RENDER.render_world import Tile_entity
 from MODULES.init import CONFIG
 
 FPS = int(CONFIG["pygame"]["FPS"])
+SIZE = CONFIG['world_gen']['tile_set']["size"]
 
 
 class Player(pg.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x: int, y: int) -> None:
         pg.sprite.Sprite.__init__(self)
 
-        self.x, self.y = x, y
+        self.x, self.y = x-SIZE/2, y-SIZE/2
 
         self.speed: float = CONFIG["player"]["speed"]
 
         self.move_keys_main = (pg.K_w, pg.K_a, pg.K_s, pg.K_d)
-        self.move_keys = {pg.K_w: "up", pg.K_a: "left",
-                          pg.K_s: "down", pg.K_d: "right"}
-        self.move_names = {"up": pg.K_w, "left": pg.K_a,
-                           "down": pg.K_s, "right": pg.K_d}
+        self.move_keys = {pg.K_w: "up", 
+                          pg.K_a: "left",
+                          pg.K_s: "down", 
+                          pg.K_d: "right"}
+        self.move_names = {"up": pg.K_w, 
+                           "left": pg.K_a,
+                           "down": pg.K_s, 
+                           "right": pg.K_d}
 
         self.last_direction_key: str = 'up'
         self.current_direction_key: str = 'up'
@@ -43,10 +47,10 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
 
-    def crop_sprite_list(self, path, spritelist):
+    def crop_sprite_list(self, path: str, spritelist: str) -> dict[int, str]:
         print(f"Loading {spritelist} sprite list {path}")
         image = Image.open(path)
-        self.imgs = {}
+        imgs: dict[int, str] = {}
 
         sprite_number = 0
         size = CONFIG["player"]["sprite_list"]["size"]
@@ -55,8 +59,6 @@ class Player(pg.sprite.Sprite):
                 top_y, top_x = row, col
                 top_x, top_y = (top_x - 1) * size, (top_y - 1) * size
                 down_x, down_y = top_x + size, top_y + size
-
-                print(f"Top: {top_x, top_y} Down: {down_x, down_y}")
                 nt = image.crop((top_x, top_y, down_x, down_y))
 
                 path_to_player_pictures = "\\DATA\\tmp\\player\\"
@@ -67,12 +69,13 @@ class Player(pg.sprite.Sprite):
                 path = f"./DATA/tmp/player/{spritelist}_{sprite_number}.png"
                 nt.save(path)
 
-                self.imgs[sprite_number] = path
+                imgs[sprite_number] = path
                 sprite_number += 1
-        return self.imgs
 
-    def setup_image_lists(self):
-        data_list = {}
+        return imgs
+
+    def setup_image_lists(self) -> dict[str,dict[int, str]]:
+        data_list: dict[str,dict[int, str]] = {}
         for spritelist, path in self.sprite_list.items():
             images = self.crop_sprite_list(path, spritelist)
             data_list[spritelist] = images
@@ -80,7 +83,7 @@ class Player(pg.sprite.Sprite):
 
         return data_list
 
-    def frame_load(self):
+    def frame_load(self) -> None:
         image_path = self.data_list[self.current_direction][self.current_image_index]
         self.image = pg.image.load(image_path).convert_alpha()
         self.image = pg.transform.scale(
@@ -88,11 +91,11 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pg.mask.from_surface(self.image)
 
-    def handle_keydown(self, key):
+    def handle_keydown(self, key: int) -> None:
         if key in self.move_keys_main:
             self.current_direction_key = self.move_keys[key]
 
-    def move(self, keys, center):
+    def move(self, keys: ScancodeWrapper, center: tuple[int, int]) -> None:
         speed_per_frame = self.speed / FPS
         current_key = None
 
@@ -147,14 +150,15 @@ class Player(pg.sprite.Sprite):
         elif (center[1] - self.y) >= 64:
             self.y += speed_per_frame - 1
 
-    def update(self, keys, center, wall):
-        self.mask = pg.mask.from_surface(self.image)
+    def update(self, keys: ScancodeWrapper, center: tuple[int, int], wall) -> None:
+        # self.mask = pg.mask.from_surface(self.image)
 
-        if self.mask.overlap(wall.mask, (10, 10)):
-            print(f"COLLISION {round(int(time.time()), 2)}")
+        # if self.mask.overlap(wall.mask, (10, 10)):
+        #     # print(f"COLLISION {round(int(time.time()), 2)}")
+        #     pass
 
         self.move(keys, center)
         self.frame_load()
 
-    def draw(self, surface):
+    def draw(self, surface: pg.Surface) -> None:
         surface.blit(self.image, (self.x, self.y))

@@ -6,9 +6,9 @@ TILES = CONFIG['world_gen']['tile_set']["tiles"]
 SIZE = CONFIG['world_gen']['tile_set']["size"]
 
 
-def crop_tiles(path_to_tileset):
+def crop_tiles(path_to_tileset: str) -> dict[str, Image.Image]:
     im = Image.open(path_to_tileset)
-    tiles_img = {}
+    tiles_img: dict[str, Image.Image] = {}
 
 
     for tile, data in TILES.items():
@@ -22,13 +22,15 @@ def crop_tiles(path_to_tileset):
     return tiles_img
 
 
-def search(row, col, worldmap):
+def search(row:int, col:int, worldmap: list[list[str]]) -> str:
     for tile, data in TILES.items():
         if data["ej"] == worldmap[row][col]:
             return tile
+        
+    return "error"
 
 
-def map_visualise(TILEMAP):
+def map_visualise(TILEMAP: list[list[str]]) -> None:
     tiles_imgs = crop_tiles(path_to_tileset="./DATA/reses/tileset/tileset.png")
 
     img = Image.new('RGB', (32*WIDTH, 32*HEIGHT), 'black')
