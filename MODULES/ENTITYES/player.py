@@ -160,5 +160,12 @@ class Player(pg.sprite.Sprite):
         self.move(keys, center)
         self.frame_load()
 
+    def exit_now(self, exit) -> str:
+        if exit:
+            print(abs(exit.rect.x - self.x), abs(exit.rect.y - self.y))
+            if abs(exit.rect.x - self.x) <= 32 and abs(exit.rect.y - self.y) <= 32:
+                return "win"
+        return "nos"
+
     def draw(self, surface: pg.Surface) -> None:
         surface.blit(self.image, (self.x, self.y))

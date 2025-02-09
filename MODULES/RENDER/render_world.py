@@ -34,7 +34,8 @@ class WorldClass:
     def __init__(self, WORLD: MapGeneration, floor_surface: pg.Surface, wall_surface: pg.Surface) -> None:
         self.floor: Tile_entity
         self.wall = pg.sprite.Group()
-        self.start_point: Tile_entity
+        # self.start_point: Tile_entity
+        self.exit_point = None
         self.WORLD = WORLD
         self.floor_surface = floor_surface
         self.wall_surface = wall_surface
@@ -74,7 +75,7 @@ class WorldClass:
         self.draw_end(surface=surface)
         self.draw_start(surface)
 
-    def _draw_point(self, surface: pg.Surface, x_tile: int, y_tile: int, image_path: str) -> None:
+    def _draw_point(self, surface: pg.Surface, x_tile: int, y_tile: int, image_path: str, exit_p=False) -> None:
         coords_tiled = (x_tile - self.x_coord, y_tile - self.y_coord)
         center = self.get_center_tile_corner()
         corner_coord = (self.x_centr + center[0], self.y_centr + center[1])
@@ -85,10 +86,12 @@ class WorldClass:
         if 0 <= coords[0] <= self.DRAW_DIST * 2 and 0 <= coords[1] <= self.DRAW_DIST * 2:
             resized = (coords[0] * SIZE + corner_coord[0], coords[1] * SIZE + corner_coord[1])
             point_sprite = Tile_entity(resized[0], resized[1], image_path)
+            if exit_p:
+                self.exit_point = point_sprite
             point_sprite.draw(surface)
 
     def draw_end(self, surface: pg.Surface):
-        self._draw_point(surface, self.x_end, self.y_end, "./DATA/tmp/tiles/end-point.png")
+        self._draw_point(surface, self.x_end, self.y_end, "./DATA/tmp/tiles/end-point.png", exit_p=True)
 
     def draw_start(self, surface: pg.Surface):
         self._draw_point(surface, self.x_start, self.y_start, "./DATA/tmp/tiles/start-point.png")
@@ -122,46 +125,40 @@ class WorldClass:
                 self.wall.add(obj_)
             except AttributeError:
                 raise AttributeError("error")
-
-
-    # def draw_wall(self) -> None:
-    #     center0 = self.get_center_tile_corner()
-    #     center = center0[0] + self.x_centr, center0[1] + self.y_centr
-
-    #     wall_sprite_all = Image.open("./DATA/tmp/wall_sprite.png")
-
-    #     start_x = max((self.x_coord - self.DRAW_DIST) * SIZE, 0)
-    #     start_y = max((self.y_coord - self.DRAW_DIST) * SIZE, 0)
-
-    #     crop_width = (2 * self.DRAW_DIST + 1) * SIZE
-    #     crop_height = (2 * self.DRAW_DIST + 1) * SIZE
-
-    #     box = (start_x, start_y, start_x + crop_width, start_y + crop_height)
-
-    #     wall_crop = wall_sprite_all.crop(box)
-    #     wall_crop.save("./DATA/tmp/wall_cropped.png")
-
-    #     self.draw_tile(up_left_draw_corner=(center[0], center[1]), tile_type="./DATA/tmp/wall_cropped.png", wall=True)
+            
+    def draw_minimap(self, surface: pg.Surface):
+        width = height = 150
+        margin = 20
+        img = pg.image.load("./DATA/tmp/wall_sprite.png").convert_alpha()
+        new_img = self.image = pg.transform.scale(img, (width, height))
+        
+        surface.blit(new_img, (surface.get_width()-(width+margin), margin))
 
     def draw_wall(self) -> None:
         self.wall = pg.sprite.Group()
         center = self.get_center_tile_corner()
+        center = center[0] + self.x_centr, center[1] + self.y_centr
+
         TILEMAP = self.WORLD.get_map()
 
         render_list = TILEMAP[:]
-        render_list = render_list[int(self.y_coord) + self.DRAW_DIST:][:self.DRAW_DIST * 2 + 1]
+
+        # x_coord = (self.x_coord if (len(self.WORLD.get_map())-self.DRAW_DIST-1) >= self.x_coord >= self.DRAW_DIST else (len(self.WORLD.get_map()) - self.DRAW_DIST-1) if self.x_coord <= (len(self.WORLD.get_map())-self.DRAW_DIST-1) else self.DRAW_DIST)
+        # y_coord = (self.y_coord if (len(self.WORLD.get_map())-self.DRAW_DIST-1) >= self.y_coord >= self.DRAW_DIST else (len(self.WORLD.get_map()) - self.DRAW_DIST-1) if self.y_coord <= (len(self.WORLD.get_map())-self.DRAW_DIST-1) else self.DRAW_DIST)
+
+
+        render_list = render_list[self.y_coord - self.DRAW_DIST:self.y_coord + self.DRAW_DIST + 1]
 
         for n, row in enumerate(render_list):
-            render_list[n] = row[int(self.x_coord) + self.DRAW_DIST:][:self.DRAW_DIST * 2 + 1]
-
+             render_list[n] = row[self.x_coord - self.DRAW_DIST:self.x_coord + self.DRAW_DIST + 1]
 
         for row, x_c in enumerate(range(center[0], center[0] + (SIZE * self.DRAW_DIST* 2) + 1, SIZE)):
             for col, y_c in enumerate(range(center[1], center[1] + (SIZE * self.DRAW_DIST * 2) + 1, SIZE)):
                 try:
+                    tile = self.search_tile(col, row, render_list)
                     if row < 0 or col < 0:
                         raise IndexError
-                    tile = self.search_tile(col, row, render_list)
-                    if tile != "floor":
+                    elif tile != "floor":
                         self.draw_tile(up_left_draw_corner=(x_c, y_c), tile_type=self.tiles_img[tile], wall=True)
                 except IndexError:
                     pass
@@ -211,37 +208,40 @@ class WorldClass:
 
         print("DONE!!!")
 
-    # def render_wall(self) -> None:
-    #     WIDTH = HEIGHT = CONFIG['world_gen']['size']
-    #     print("Pre-Render Wall  > ", end="")
-    #     tilemap = self.WORLD.tilemap
+    def render_wall(self) -> None:
+        WIDTH = HEIGHT = CONFIG['world_gen']['size']
+        print("Pre-Render Wall  > ", end="")
+        tilemap = self.WORLD.tilemap
 
-    #     img_wall = Image.new('RGB', (SIZE * WIDTH, SIZE * HEIGHT), 'black')
-    #     for row in range(HEIGHT):
-    #         for col in range(WIDTH):
-    #             tile = self.search_tile(row, col, tilemap)
-    #             if tile != "floor":
-    #                 tile_img = Image.open(self.tiles_img[tile])
-    #                 img_wall.paste(tile_img, (col * 32, row * 32))
+        img_wall = Image.new('RGBA', (SIZE * WIDTH, SIZE * HEIGHT), (255, 0, 0, 0))
+        for row in range(HEIGHT):
+            for col in range(WIDTH):
+                tile = self.search_tile(row, col, tilemap)
+                if tile != "floor":
+                    tile_img = Image.open(self.tiles_img[tile])
+                    thresh = 3
+                    r = tile_img.convert('L').point(lambda x : 255 if x > thresh else 0, mode='1')
+                    img_wall.paste(r, (col * 32, row * 32))
 
-    #     img_wall.save("./DATA/tmp/wall_sprite.png")
+        img_wall.save("./DATA/tmp/wall_sprite.png")
 
-    #     print("DONE!!!")
+        print("DONE!!!")
 
     def pre_render_textures(self) -> None:
         print(">> PRE RENDERING:")
+        self.render_wall()
         self.render_floor()
         print(">> DONE!!!")
 
     def center_point(self, other: int, operat: str) -> None:
-        if operat == "+x":
+        if operat == "+x" and self.x_coord > self.DRAW_DIST:
             self.x_centr += other
-        if operat == "-x":
+        if operat == "-x" and self.x_coord < (len(self.WORLD.get_map())-self.DRAW_DIST-1):
             self.x_centr -= other
 
-        if operat == "+y":
+        if operat == "+y" and self.y_coord > self.DRAW_DIST:
             self.y_centr += other
-        if operat == "-y":
+        if operat == "-y" and self.y_coord < (len(self.WORLD.get_map())-self.DRAW_DIST-1):
             self.y_centr -= other
         
         center0 = self.get_center_tile_corner()
@@ -260,3 +260,13 @@ class WorldClass:
         if (center[1] - center0[1]) > 32:
             self.y_centr = 0
             self.y_coord -= 1
+
+        if self.y_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+            self.y_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
+        if self.y_coord < self.DRAW_DIST:
+            self.y_coord = self.DRAW_DIST
+        
+        if self.x_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+            self.x_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
+        if self.x_coord < self.DRAW_DIST:
+            self.x_coord = self.DRAW_DIST
