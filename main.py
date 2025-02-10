@@ -28,11 +28,11 @@ if __name__ == "__main__":
             break
 
         if flag == "main_game":
-            game_flag = main_game_loop(scr, size, audio)
+            game_flag, time1, time2 = main_game_loop(scr, size, audio)
             if game_flag == "quit":
                 break
             else:
-                print(f"you win the game to {round(float(game_flag[2] - game_flag[1]), 3)}secs!!!!")
+                print(f"you win the game to {round(float(time2 - time1), 3)}secs!!!!")
                 break
         elif flag == "best_results":
             flag = ScoreTable().run()

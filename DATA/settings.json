@@ -3,14 +3,14 @@
   "version": "0.1a",
   "world_gen": {
     "size": 55,
-    "s-p_dist": 25,
+    "s-p_dist": 15,
     "iterations": 30,
     "elements": {
       "wall": { "ej": "⬜", "perc": 40 },
       "floor": { "ej": "⬛", "perc": 60 },
       "empty": { "ej": "+", "perc": 100 },
-      "start_point": { "ej": "⭐" },
-      "end_point": { "ej": "*️⃣" }
+      "start-point": { "ej": "⭐" },
+      "end-point": { "ej": "*️⃣" }
     },
     "tile_set": {
       "size": 32,
@@ -52,7 +52,7 @@
     "FPS": 60,
     "width": 900,
     "height": 600,
-    "distance": 5,
+    "distance": 6,
     "scale": 1,
     "fullscreen": "No",
     "f_width": 1920,

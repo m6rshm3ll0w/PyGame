@@ -19,11 +19,11 @@ class Tile_entity(pg.sprite.Sprite):
 
         self.image = img
         self.image.set_colorkey(BLACK)
-        self.rect = self.image.get_rect()
+        
         self.mask = pg.mask.from_surface(self.image)
-
-        self.rect.x = x
-        self.rect.y = y
+        
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y) 
         
     def draw(self, screen: pg.Surface) -> None:
         screen.blit(self.image, self.rect)
@@ -143,9 +143,7 @@ class WorldClass:
 
         render_list = TILEMAP[:]
 
-        # x_coord = (self.x_coord if (len(self.WORLD.get_map())-self.DRAW_DIST-1) >= self.x_coord >= self.DRAW_DIST else (len(self.WORLD.get_map()) - self.DRAW_DIST-1) if self.x_coord <= (len(self.WORLD.get_map())-self.DRAW_DIST-1) else self.DRAW_DIST)
-        # y_coord = (self.y_coord if (len(self.WORLD.get_map())-self.DRAW_DIST-1) >= self.y_coord >= self.DRAW_DIST else (len(self.WORLD.get_map()) - self.DRAW_DIST-1) if self.y_coord <= (len(self.WORLD.get_map())-self.DRAW_DIST-1) else self.DRAW_DIST)
-
+        self.anti_allise()
 
         render_list = render_list[self.y_coord - self.DRAW_DIST:self.y_coord + self.DRAW_DIST + 1]
 
@@ -244,6 +242,7 @@ class WorldClass:
         if operat == "-y" and self.y_coord < (len(self.WORLD.get_map())-self.DRAW_DIST-1):
             self.y_centr -= other
         
+
         center0 = self.get_center_tile_corner()
         center = (center0[0] + self.x_centr), (center0[1] + self.y_centr)
 
@@ -261,6 +260,9 @@ class WorldClass:
             self.y_centr = 0
             self.y_coord -= 1
 
+        self.anti_allise()
+
+    def anti_allise(self):
         if self.y_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
             self.y_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
         if self.y_coord < self.DRAW_DIST:

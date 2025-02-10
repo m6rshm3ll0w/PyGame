@@ -1,8 +1,8 @@
 import os
 from PIL import Image
 import pygame as pg
+import time
 from pygame.key import ScancodeWrapper
-from MODULES.RENDER.render_world import Tile_entity
 from MODULES.init import CONFIG
 
 FPS = int(CONFIG["pygame"]["FPS"])
@@ -45,7 +45,11 @@ class Player(pg.sprite.Sprite):
         self.frame_load()
 
         self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y) 
+
         self.mask = pg.mask.from_surface(self.image)
+
+        self.last_key = "up"
 
     def crop_sprite_list(self, path: str, spritelist: str) -> dict[int, str]:
         print(f"Loading {spritelist} sprite list {path}")
@@ -88,14 +92,16 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load(image_path).convert_alpha()
         self.image = pg.transform.scale(
             self.image, (self.desired_width, self.desired_height))
+        
         self.rect = self.image.get_rect()
+        self.rect.topleft = (self.x, self.y) 
         self.mask = pg.mask.from_surface(self.image)
 
     def handle_keydown(self, key: int) -> None:
         if key in self.move_keys_main:
             self.current_direction_key = self.move_keys[key]
 
-    def move(self, keys: ScancodeWrapper, center: tuple[int, int]) -> None:
+    def move(self, keys: ScancodeWrapper, center: tuple[int, int], collide_obj) -> None:
         speed_per_frame = self.speed / FPS
         current_key = None
 
@@ -110,20 +116,37 @@ class Player(pg.sprite.Sprite):
 
         prev_direction = self.current_direction
 
-        if current_key == "up":
-            self.y -= speed_per_frame
-            self.current_direction = 'down'
-        elif current_key == "down":
-            self.y += speed_per_frame
-            self.current_direction = 'up'
-        elif current_key == "left":
-            self.x -= speed_per_frame
-            self.current_direction = 'left'
-        elif current_key == "right":
-            self.x += speed_per_frame
-            self.current_direction = 'right'
-        else:
-            self.current_direction = 'down'
+        collide = pg.sprite.spritecollide(self, collide_obj, False, pg.sprite.collide_mask)
+
+        if not collide:
+            if current_key == "up":
+                self.y -= speed_per_frame
+                self.current_direction = 'down'
+            elif current_key == "down":
+                self.y += speed_per_frame
+                self.current_direction = 'up'
+            elif current_key == "left":
+                self.x -= speed_per_frame
+                self.current_direction = 'left'
+            elif current_key == "right":
+                self.x += speed_per_frame
+                self.current_direction = 'right'
+            else:
+                self.current_direction = 'down'
+            
+        if collide:
+            if self.last_key == "up":
+                self.y += speed_per_frame
+                # self.current_direction = 'up'
+            elif self.last_key == "down":
+                self.y -= speed_per_frame
+                # self.current_direction = 'down'
+            elif self.last_key == "left":
+                self.x += speed_per_frame
+                # self.current_direction = 'right'
+            elif self.last_key == "right":
+                self.x -= speed_per_frame
+                # self.current_direction = 'left'
 
         if prev_direction != self.current_direction:
             self.current_image_index = 0
@@ -150,22 +173,18 @@ class Player(pg.sprite.Sprite):
         elif (center[1] - self.y) >= 64:
             self.y += speed_per_frame - 1
 
-    def update(self, keys: ScancodeWrapper, center: tuple[int, int], wall) -> None:
-        # self.mask = pg.mask.from_surface(self.image)
+        self.last_key = current_key
 
-        # if self.mask.overlap(wall.mask, (10, 10)):
-        #     # print(f"COLLISION {round(int(time.time()), 2)}")
-        #     pass
-
-        self.move(keys, center)
+    def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide) -> None:
+        self.move(keys, center, get_collide)
         self.frame_load()
 
     def exit_now(self, exit) -> str:
         if exit:
-            print(abs(exit.rect.x - self.x), abs(exit.rect.y - self.y))
-            if abs(exit.rect.x - self.x) <= 32 and abs(exit.rect.y - self.y) <= 32:
+            offset = (exit.rect.x - self.rect.x, exit.rect.y - self.rect.y)
+            if self.mask.overlap(exit.mask, offset=offset):
                 return "win"
-        return "nos"
+        return "no"
 
     def draw(self, surface: pg.Surface) -> None:
-        surface.blit(self.image, (self.x, self.y))
+        surface.blit(self.image, (self.rect.x, self.rect.y))

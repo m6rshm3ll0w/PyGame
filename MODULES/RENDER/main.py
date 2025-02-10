@@ -81,7 +81,7 @@ def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
 
 
 
-def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer) -> str | tuple[str, float, float]:
+def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer) -> tuple[str , float, float]:
     # audio.unpause_music()
 
     pg.event.set_allowed([pg.QUIT])
@@ -106,7 +106,7 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                return 'quit'
+                return "quit", start_time, time.time()
 
         keys = pygame.key.get_pressed()
 
@@ -122,16 +122,19 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
         update_map(world, floor_surf, game_surf)
 
+
         player.update(keys, center, world.wall)
+
+
         player.draw(game_surf)
 
         if player.exit_now(world.exit_point) == "win":
-            return ("win", start_time, time.time())
+            return "win", start_time, time.time()
 
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
 
         # print(f"FPS {1//(time_end - time_start):.1f}")
 
-    return "quit"
+    return "quit", start_time, time.time()
 
 
