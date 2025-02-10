@@ -85,12 +85,22 @@ def main_game_loop(screen, size):
 
     images = load_images()
 
-    agat8 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
-    moving_surface = agat8.render(CONFIG['main_game']['moving'], True, 'white')
-    sound_surface = agat8.render(CONFIG['main_game']['sound'], True, 'white')
+    font1 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
+    moving_surface = font1.render(CONFIG['main_game']['moving'], True, 'white')
+    sound_surface = font1.render(CONFIG['main_game']['sound'], True, 'white')
 
     audio = AudioPlayer()
     audio.run(CONFIG['dirs']['sounds']['game'])
+
+    img = pygame.image.load(CONFIG['dirs']['pictures']['button'])
+    img = pygame.transform.scale(
+        img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
+
+    font2 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 30)
+    menu = CONFIG['best_results']['menu']
+    menu_surface = font2.render(menu, True, 'white')
+    menu_rect = menu_surface.get_rect(topleft=(415, 530))
+    menu_click_area = pygame.Rect(390, 518, 120, 50)
 
     running = True
     while running:
@@ -106,6 +116,11 @@ def main_game_loop(screen, size):
                 if event.key == pygame.K_t and pg.time.get_ticks() - st_time > 800:
                     audio.pause_unpause_music()
                     st_time = pg.time.get_ticks()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if menu_click_area.collidepoint(event.pos):
+                        audio.stop_music()
+                        return 'menu'
 
         keys = pygame.key.get_pressed()
         move_speed = 200 // FPS
@@ -135,5 +150,8 @@ def main_game_loop(screen, size):
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
 
         guide_for_user(screen, images, moving_surface, sound_surface)
+
+        screen.blit(img, (0, 0))
+        screen.blit(menu_surface, menu_rect)
 
         pygame.display.flip()

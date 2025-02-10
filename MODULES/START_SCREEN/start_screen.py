@@ -23,7 +23,7 @@ def start_screen(screen, size, audio):
         CONFIG["start_screen"]["authors"], True, 'white')
     start_surface = agat8.render(
         CONFIG["start_screen"]["start"], True, 'white')
-    best_surface = agat8.render(CONFIG["start_screen"]["best"], True, 'white')
+    best_surface = agat8.render(CONFIG["start_screen"]["best_results"], True, 'white')
 
     text_rect = text_surface.get_rect(center=(screen_width // 2, 175))
     authors_rect = authors_surface.get_rect(
@@ -40,8 +40,8 @@ def start_screen(screen, size, audio):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     audio.pause_unpause_music()
-                if event.key == pygame.K_s:
-                    return 'end_screen'
+                # if event.key == pygame.K_s:
+                #     return 'end_screen'
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:

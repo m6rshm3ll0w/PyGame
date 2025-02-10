@@ -33,6 +33,10 @@ if __name__ == "__main__":
             game_flag = main_game_loop(scr, size)
             if game_flag == "quit":
                 break
+            else:
+                audio = AudioPlayer()
+                audio.run()
+
         elif flag == "best_results":
             flag = ScoreTable().run(audio)
             if flag == 'quit':
