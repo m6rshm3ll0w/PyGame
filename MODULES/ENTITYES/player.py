@@ -32,7 +32,7 @@ class Player(pg.sprite.Sprite):
         self.current_direction: str = 'up'
         self.current_image_index: int = 1
         self.animation_sprites = CONFIG["player"]["animation_sprites"]
-        self.animation_interval = 1
+        self.animation_fps = 1/CONFIG["player"]["animation_fps"]
         self.sprite_list = CONFIG["player"]["sprite_list"]["paths"]
 
         self.data_list = self.setup_image_lists()
@@ -40,7 +40,7 @@ class Player(pg.sprite.Sprite):
         self.width = self.desired_width = CONFIG["player"]["width"]
         self.height = self.desired_height = CONFIG["player"]["height"]
 
-        self.last_image_change = pg.time.get_ticks()
+        self.last_image_change = time.time()
 
         self.frame_load()
 
@@ -152,14 +152,14 @@ class Player(pg.sprite.Sprite):
             self.current_image_index = 0
 
         if current_key is not None:
-            current_time = pg.time.get_ticks()
-            if current_time - self.last_image_change >= self.animation_interval:
-                self.last_image_change = current_time
+            current_time = time.time()
+            if current_time - self.last_image_change >= self.animation_fps:
+                self.last_image_change = time.time()
                 self.current_image_index = (self.current_image_index + 1) % self.animation_sprites
                 self.frame_load()
 
         else:
-            self.current_direction = 'up'
+            # self.current_direction = 'up'
             self.current_image_index = 0
             self.frame_load()
 

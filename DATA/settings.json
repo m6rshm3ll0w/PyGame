@@ -63,7 +63,7 @@
     "width": 60,
     "height": 60,
     "animation_sprites": 7,
-    "animation_fps": 500,
+    "animation_fps": 10,
     "sprite_list": {
       "size": 64,
       "cols": 7,
