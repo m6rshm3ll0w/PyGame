@@ -35,19 +35,19 @@ def start_screen(screen, size, audio):
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                audio.pause_music()
+                audio.pause_unpause_music()
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_t:
                     audio.pause_unpause_music()
-                # if event.key == pygame.K_s:
-                #     return 'end_screen'
+                if event.key == pygame.K_s:
+                    return 'end_screen'
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if start_click_area.collidepoint(event.pos):
                         audio.stop_music()
-                        return "main_game"
+                        return "game"
                     elif best_results_click_area.collidepoint(event.pos):
                         return 'best_results'
 

@@ -1,1 +1,1 @@
-{"size":55,"elements":{"wall":{"ej":"⬜","perc":40},"floor":{"ej":"⬛","perc":60},"empty":{"ej":"+","perc":100},"start_point":{"ej":"⭐"},"end_point":{"ej":"*️⃣"}},"start_point":{"row":42,"col":39},"end_point":{"row":31,"col":5},"chests":null,"spawners":null}
+{"size":55,"elements":{"wall":{"ej":"⬜","perc":40},"floor":{"ej":"⬛","perc":60},"empty":{"ej":"+","perc":100},"start_point":{"ej":"⭐"},"end_point":{"ej":"*️⃣"}},"start_point":{"row":3,"col":53},"end_point":{"row":49,"col":30},"chests":null,"spawners":null}

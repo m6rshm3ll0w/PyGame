@@ -29,7 +29,7 @@ if __name__ == "__main__":
         if flag is None or flag == "quit":
             break
 
-        if flag == "menu":
+        if flag == "game":
             game_flag = main_game_loop(scr, size)
             if game_flag == "quit":
                 break
