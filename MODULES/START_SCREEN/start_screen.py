@@ -1,6 +1,5 @@
 import pygame
 from MODULES.init import CONFIG
-from MODULES.audio import AudioPlayer
 
 
 def start_screen(screen: pygame.Surface, size: tuple[int,int], audio: AudioPlayer) -> str:
@@ -32,16 +31,20 @@ def start_screen(screen: pygame.Surface, size: tuple[int,int], audio: AudioPlaye
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                audio.pause_music()
+                audio.pause_unpause_music()
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_t:
+                    audio.pause_unpause_music()
+                # if event.key == pygame.K_s:
+                #     return 'end_screen'
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if start_click_area.collidepoint(event.pos):
-                        audio.pause_music()
-                        return "main_game"
+                        audio.stop_music()
+                        return "game"
                     elif best_results_click_area.collidepoint(event.pos):
-                        audio.pause_music()
                         return 'best_results'
 
         screen.blit(image, (0, 0))

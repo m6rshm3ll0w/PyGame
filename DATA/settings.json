@@ -80,7 +80,23 @@
     "game_name": "The Dungeon",
     "authors": "project created by: @m6rshm3ll0w, @st0rmeed",
     "start": "START",
-    "best": "BEST"
+    "best_results": "BEST"
+  },
+  "main_game": {
+    "moving": "MOVING",
+    "sound": "ON/OFF SOUND"
+  },
+  "best_results": {
+    "menu" : "MENU"
+  },
+  "game": {
+    "menu": "MENU"
+  },
+  "end_screen": {
+      "save": "SAVE",
+      "menu": "MENU",
+      "nickname": "NICKNAME",
+      "time": "TIME"
   },
   "dirs": {
     "req": "./DATA/requirements.txt",
@@ -93,10 +109,18 @@
     "database": "./DATA/reses/results/results.sqlite",
     "pictures": {
       "main_menu": "./DATA/reses/start_end_pictures/start.png",
-      "best_results": "./DATA/reses/best_result_picture/best_result.png"
+      "best_results": "./DATA/reses/best_result_picture/best_result.png",
+      "white_key_w": "./DATA/reses/keys/white_key_w.png",
+      "white_key_t": "./DATA/reses/keys/white_key_t.png",
+      "white_key_a": "./DATA/reses/keys/white_key_a.png",
+      "white_key_s": "./DATA/reses/keys/white_key_s.png",
+      "white_key_d": "./DATA/reses/keys/white_key_d.png",
+      "end_screen": "./DATA/reses/start_end_pictures/start.png",
+      "button": "./DATA/reses/game_button/button.png"
     },
-    "sound": {
-      "main_theme": "./DATA/audio/main_theme.mp3"
+    "sounds": {
+      "start_screen": "./DATA/audio/start_screen.mp3",
+      "game": "./DATA/audio/game.mp3"
     }
   }
 }

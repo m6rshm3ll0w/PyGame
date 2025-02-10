@@ -9,18 +9,22 @@ class ScoreTable:
         self.CONFIG = CONFIG
 
         pygame.init()
-        self.size = (self.CONFIG["pygame"]["width"], self.CONFIG["pygame"]["height"])
-        self.screen = pygame.display.set_mode((int(self.size[0]), int(self.size[1])))
+        self.size = (self.CONFIG["pygame"]["width"],
+                     self.CONFIG["pygame"]["height"])
+        self.screen = pygame.display.set_mode(
+            (int(self.size[0]), int(self.size[1])))
         self.WIDTH, self.HEIGHT = self.screen.get_size()
 
-        self.image = pygame.image.load(self.CONFIG['dirs']['pictures']['best_results'])
-        self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
+        self.image = pygame.image.load(
+            self.CONFIG['dirs']['pictures']['best_results'])
+        self.image = pygame.transform.scale(
+            self.image, (self.WIDTH, self.HEIGHT))
 
         self.font = pygame.font.Font(self.CONFIG['dirs']['fonts']['agat8'], 30)
-        self.back = 'BACK'
-        self.back_surface = self.font.render(self.back, True, 'white')
-        self.back_rect = self.back_surface.get_rect(topleft=(415, 530))
-        self.back_click_area = pygame.Rect(390, 518, 120, 50)
+        self.menu = CONFIG['best_results']['menu']
+        self.menu_surface = self.font.render(self.menu, True, 'white')
+        self.menu_rect = self.menu_surface.get_rect(topleft=(415, 530))
+        self.menu_click_area = pygame.Rect(390, 518, 120, 50)
 
         self.headers = ['PLACE', 'NICKNAME', 'TIME']
         self.data = self.get_table_data()
@@ -82,12 +86,12 @@ class ScoreTable:
             self.screen.blit(text, (x, y))
 
             text = self.font.render(name, True, self.GRAY)
-            X1_line = self.positions[1] + 40
+            X1_line = self.positions[1]
             x = X1_line + 20
             self.screen.blit(text, (x, y))
 
             text = self.font.render(str(time) + ' sec', True, self.GRAY)
-            X2_line = self.positions[2] + 105
+            X2_line = self.positions[2] + 70
             x = X2_line + 20
             self.screen.blit(text, (x, y))
 
@@ -99,25 +103,31 @@ class ScoreTable:
                          (self.positions[2] + 50, self.HEADER_HEIGHT),
                          (self.positions[2] + 50, self.HEIGHT - 120), 2)
 
+        pygame.draw.line(self.screen, self.LINE_COLOR, (self.TABLE_MARGIN, self.HEADER_HEIGHT + 30),
+                         (self.WIDTH - self.TABLE_MARGIN, self.HEADER_HEIGHT + 30), 2)
+
         for i in range(len(self.data)):
             y = self.HEADER_HEIGHT + 30 + i * self.ROW_HEIGHT
             pygame.draw.line(self.screen, self.LINE_COLOR,
                              (self.TABLE_MARGIN, y),
                              (self.WIDTH - self.TABLE_MARGIN, y), 2)
 
-    def run(self):
+    def run(self, audio):
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return 'quit'
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_t:
+                        audio.pause_unpause_music()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        if self.back_click_area.collidepoint(event.pos):
-                            return 'main_menu'
+                        if self.menu_click_area.collidepoint(event.pos):
+                            return 'menu'
 
             self.screen.blit(self.image, (0, 0))
-            self.screen.blit(self.back_surface, self.back_rect)
+            self.screen.blit(self.menu_surface, self.menu_rect)
 
             self.draw_table()
 
@@ -125,5 +135,3 @@ class ScoreTable:
 
         pygame.quit()
         sys.exit()
-
-

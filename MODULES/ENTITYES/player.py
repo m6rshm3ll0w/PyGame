@@ -18,13 +18,13 @@ class Player(pg.sprite.Sprite):
         self.speed: float = CONFIG["player"]["speed"]
 
         self.move_keys_main = (pg.K_w, pg.K_a, pg.K_s, pg.K_d)
-        self.move_keys = {pg.K_w: "up", 
+        self.move_keys = {pg.K_w: "up",
                           pg.K_a: "left",
-                          pg.K_s: "down", 
+                          pg.K_s: "down",
                           pg.K_d: "right"}
-        self.move_names = {"up": pg.K_w, 
+        self.move_names = {"up": pg.K_w,
                            "left": pg.K_a,
-                           "down": pg.K_s, 
+                           "down": pg.K_s,
                            "right": pg.K_d}
 
         self.last_direction_key: str = 'up'
@@ -45,7 +45,7 @@ class Player(pg.sprite.Sprite):
         self.frame_load()
 
         self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y) 
+        self.rect.topleft = (self.x, self.y)
 
         self.mask = pg.mask.from_surface(self.image)
 
@@ -90,11 +90,10 @@ class Player(pg.sprite.Sprite):
     def frame_load(self) -> None:
         image_path = self.data_list[self.current_direction][self.current_image_index]
         self.image = pg.image.load(image_path).convert_alpha()
-        self.image = pg.transform.scale(
-            self.image, (self.desired_width, self.desired_height))
-        
+        self.image = pg.transform.scale(self.image, (self.desired_width, self.desired_height))
+
         self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y) 
+        self.rect.topleft = (self.x, self.y)
         self.mask = pg.mask.from_surface(self.image)
 
     def handle_keydown(self, key: int) -> None:
@@ -133,7 +132,7 @@ class Player(pg.sprite.Sprite):
                 self.current_direction = 'right'
             else:
                 self.current_direction = 'down'
-            
+
         if collide:
             if self.last_key == "up":
                 self.y += speed_per_frame

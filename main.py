@@ -3,14 +3,17 @@ from MODULES.init import CONFIG
 from MODULES.RENDER.main import main_game_loop
 from MODULES.BEST_RESULTS.best_results import ScoreTable
 from MODULES.START_SCREEN.start_screen import start_screen
+from MODULES.END_SCREEN.end_screen import EndScreen
 from MODULES.audio import AudioPlayer
 
 size = (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"])
 f_size = (CONFIG["pygame"]["f_width"], CONFIG["pygame"]["f_height"])
 
+
 if __name__ == "__main__":
     pygame.init()
     audio = AudioPlayer()
+    audio.run()
 
     if CONFIG["pygame"]["fullscreen"] == "Yes":
         scr = pygame.display.set_mode(
@@ -22,7 +25,6 @@ if __name__ == "__main__":
 
     while True:
         flag = start_screen(scr, size, audio)
-        flag = "main_game"
 
         if flag == "error" or flag == "quit":
             break
@@ -31,11 +33,16 @@ if __name__ == "__main__":
             game_flag, time1, time2 = main_game_loop(scr, size, audio)
             if game_flag == "quit":
                 break
+            elif game_flag == 'win':
+                flag = EndScreen(round(float(time1-time2),0)).run(audio)
+                if flag == 'quit':
+                    break
             else:
-                print(f"you win the game to {round(float(time2 - time1), 3)}secs!!!!")
-                break
+                audio = AudioPlayer()
+                audio.run()
+
         elif flag == "best_results":
-            flag = ScoreTable().run()
+            flag = ScoreTable().run(audio)
             if flag == 'quit':
                 break
 
