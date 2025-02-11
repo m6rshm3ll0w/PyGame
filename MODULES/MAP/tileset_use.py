@@ -28,16 +28,12 @@ class MAP2TILEMAP:
 
         if RightBlock == self.ELEMENTS["end-point"]["ej"] or RightBlock == self.ELEMENTS["start-point"]["ej"]:
             RightBlock = self.ELEMENTS["floor"]["ej"]
-            print(1)
         if LeftBlock == self.ELEMENTS["end-point"]["ej"] or LeftBlock == self.ELEMENTS["start-point"]["ej"]:
             LeftBlock = self.ELEMENTS["floor"]["ej"]
-            print(1)
         if UpBlock == self.ELEMENTS["end-point"]["ej"] or UpBlock == self.ELEMENTS["start-point"]["ej"]:
             UpBlock = self.ELEMENTS["floor"]["ej"]
-            print(1)
         if DownBlock == self.ELEMENTS["end-point"]["ej"] or DownBlock == self.ELEMENTS["start-point"]["ej"]:
             DownBlock = self.ELEMENTS["floor"]["ej"]
-            print(1)
 
 
         if current_tile == self.ELEMENTS["floor"]["ej"]:

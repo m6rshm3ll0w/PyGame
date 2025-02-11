@@ -4,7 +4,7 @@ from pygame.time import Clock
 import time
 
 from MODULES.ENTITYES.player import Player
-from MODULES.RENDER.fog import fog_of_game
+from MODULES.RENDER.fog import FogOfGame
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
 from MODULES.init import CONFIG, BLACK
@@ -59,10 +59,12 @@ def update_screen(screen: pygame.Surface,
                   game_surf: pygame.Surface,
                   gui_surf: pygame.Surface,
                   clock: Clock) -> None:
+    
     clock.tick(int(FPS))
     game_surf.blit(gui_surf, (0, 0))
     floor_surf.blit(game_surf, (0, 0))
     screen.blit(floor_surf, (0, 0))
+    pygame.display.flip()
 
 
 def clear_screen(screen: pygame.Surface,
@@ -79,16 +81,36 @@ def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
     obj.draw(screen)
 
 
-def load_images():
+def guide_for_user(screen):
+    agat8_20 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
+    agat8_30 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 30)
+
+    menu_txt = agat8_30.render(CONFIG['best_results']['menu'], True, 'white')
+    moving_txt =agat8_20.render(CONFIG['main_game']['moving'], True, 'white')
+    sound_txt = agat8_20.render(CONFIG['main_game']['sound'], True, 'white')
+
     keys = ['w', 't', 'a', 's', 'd']
     images = {}
     for key in keys:
         img = pygame.image.load(CONFIG['dirs']['pictures'][f'white_key_{key}'])
         images[key] = pygame.transform.scale(img, (40, 40))
-    return images
+
+    key_positions = {'w': (55, 10), 't': (55, 150), 'a': (
+        10, 55), 's': (55, 55), 'd': (100, 55)}
+    for key, pos in key_positions.items():
+        screen.blit(images[key], pos)
+
+    # img = pygame.image.load(CONFIG['dirs']['pictures']['button'])
+    # img = pygame.transform.scale(
+    #     img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
+    # screen.blit(img, (0, 0))
+
+    screen.blit(moving_txt, (40, 110))
+    screen.blit(sound_txt, (20, 205))
+    screen.blit(menu_txt, (415, 530))
 
 
-def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer = AudioPlayer()) -> tuple[str , float, float]:
+def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer = AudioPlayer()) -> tuple[str , float, float] | str:
     clock = pg.time.Clock()
     center, floor_surf, game_surf, gui_surf = set_up_layers(size)
 
@@ -97,29 +119,19 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
     world.render_floor()
     world.render_wall()
 
+    world.change_start_point()
+
     fog = FogOfGame("./DATA/reses/fog/fog.png")
     draw_fog(fog, gui_surf)
     world.draw_minimap(gui_surf)
 
-    images = load_images()
-
-    font1 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
-    moving_surface = font1.render(CONFIG['main_game']['moving'], True, 'white')
-    sound_surface = font1.render(CONFIG['main_game']['sound'], True, 'white')
-
     audio.run(CONFIG['dirs']['sounds']['game'])
 
-    img = pygame.image.load(CONFIG['dirs']['pictures']['button'])
-    img = pygame.transform.scale(
-        img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
-
-    font2 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 30)
-    menu = CONFIG['best_results']['menu']
-    menu_surface = font2.render(menu, True, 'white')
-    menu_rect = menu_surface.get_rect(topleft=(415, 530))
+    
+    
     menu_click_area = pygame.Rect(390, 518, 120, 50)
 
-    start_time = time.time()
+    start_time: float = time.time()
 
     running = True
     while running:
@@ -131,17 +143,16 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
                 return "quit", start_time, time.time()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_t and pg.time.get_ticks() - st_time > 800:
+                if event.key == pygame.K_t:
                     audio.pause_unpause_music()
-                    st_time = pg.time.get_ticks()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if menu_click_area.collidepoint(event.pos):
                         audio.stop_music()
-                        return 'menu'
+                        return 'menu', 0, 0
 
         keys = pygame.key.get_pressed()
-
         move_speed = CONFIG["player"]["speed"] // FPS
 
         if player.x - center[0] >= 64:
@@ -153,12 +164,6 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
         if center[1] - player.y >= 64:
             world.center_point(move_speed, "+y")
 
-        # if keys[pygame.K_t] and audio.is_running and pg.time.get_ticks() - st_time > 500:
-        #     audio.pause_unpause_music()
-        #     st_time = pg.time.get_ticks()
-        # elif keys[pygame.K_y] and not audio.is_running and pg.time.get_ticks() - st_time > 500:
-        #     audio.pause_unpause_music()
-        #     st_time = pg.time.get_ticks()
 
         update_map(world, floor_surf, game_surf)
 
@@ -168,11 +173,7 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
         if player.exit_now(world.exit_point) == "win":
             return "win", start_time, time.time()
 
+        guide_for_user(gui_surf)
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
-        guide_for_user(screen, images, moving_surface, sound_surface)
 
-        screen.blit(img, (0, 0))
-        screen.blit(menu_surface, menu_rect)
-
-        pygame.display.flip()
     return "quit", start_time, time.time()

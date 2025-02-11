@@ -22,19 +22,21 @@ if __name__ == "__main__":
         scr = pygame.display.set_mode((int(size[0]), int(size[1])))
 
     size = scr.get_size()
+    flag = "menu"
 
     while True:
-        flag = start_screen(scr, size, audio)
+        if flag == "menu":
+            flag = start_screen(scr, size, audio)
 
         if flag == "error" or flag == "quit":
             break
 
         if flag == "main_game":
-            game_flag, time1, time2 = main_game_loop(scr, size, audio)
-            if game_flag == "quit":
+            flag, time1, time2 = main_game_loop(scr, size, audio)
+            if flag == "quit":
                 break
-            elif game_flag == 'win':
-                flag = EndScreen(round(float(time1-time2),0)).run(audio)
+            elif flag == 'win':
+                flag = EndScreen(int(float(time2) - float(time1))).run(audio)
                 if flag == 'quit':
                     break
             else:

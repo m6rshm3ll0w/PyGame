@@ -97,8 +97,10 @@ class EndScreen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if self.menu_click_area.collidepoint(event.pos):
+                            self.upload_data()
+                            self.count_taps += 1
                             return 'menu'
-                        if self.save_click_area.collidepoint(event.pos) and self.count_taps < 1:
+                        elif self.save_click_area.collidepoint(event.pos) and self.count_taps < 1:
                             self.upload_data()
                             self.count_taps += 1
                         if self.nickname_rect.collidepoint(event.pos):
@@ -117,9 +119,8 @@ class EndScreen:
                 190, 165, 500, 200, (255, 255, 255), 100, 30
             )
 
-            self.draw_transparent_rounded_rect(
-                *self.nickname_rect, (255, 255, 255), 255, 10, 2
-            )
+            self.draw_transparent_rounded_rect(*self.nickname_rect, color=(255, 255, 255), alpha=255, border_radius=10, thickness=2)
+            
 
             nickname_input_text = self.font.render(
                 self.nickname, True, 'white')

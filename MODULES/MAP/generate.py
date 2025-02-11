@@ -6,6 +6,7 @@ import random
 
 from MODULES.init import CONFIG
 from MODULES.MAP.tileset_use import MAP2TILEMAP
+from MODULES.MAP.check_runble import check_labirint
 
 
 #  Классы обьектов ↓↓↓↓↓↓↓↓↓
@@ -147,18 +148,31 @@ class MapGeneration:
         self.generate_iteration()
 
 
-    def generate_world(self) -> None:
+    def generate_all_iters(self) -> None:
         for _ in range(self.ITERATIONS):
             self.map = self.generate_iteration()
 
-        self.add_borders()
 
-        end_p, start_p = self.search_points()
-        self.map[end_p["row"]][end_p["col"]] = self.ELEMENTS["end-point"]["ej"]
-        self.map[start_p["row"]][start_p["col"]] = self.ELEMENTS["start-point"]["ej"]
+    def generate_world(self):
+
+        try_ = 1
+        check = False
+        while not check:
+            self.map: list[list[str]] = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
+            self.generate_all_iters()
+            self.add_borders()
+
+            end_p, start_p = self.search_points()
+            self.map[end_p["row"]][end_p["col"]] = self.ELEMENTS["end-point"]["ej"]
+            self.map[start_p["row"]][start_p["col"]] = self.ELEMENTS["start-point"]["ej"]
+            
+            check = check_labirint(self.map)
+
+            print(try_, check)
+            try_ += 1
+
         self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
                           end_point=end_p)
-
 
         ref = MAP2TILEMAP()
         ref.reformat(self.map)
