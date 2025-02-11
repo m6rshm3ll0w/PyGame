@@ -47,7 +47,7 @@ class Player(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y) 
 
-        self.mask = pg.mask.from_surface(self.image)
+        self.load_mask()
 
         self.last_key = "up"
 
@@ -95,13 +95,19 @@ class Player(pg.sprite.Sprite):
         
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y) 
-        self.mask = pg.mask.from_surface(self.image)
+
+    def load_mask(self):
+        mask_path =CONFIG["player"]["mask"]
+        mask_img = pg.image.load(mask_path).convert_alpha()
+        mask_img = pg.transform.scale(
+            mask_img, (self.desired_width, self.desired_height))
+        self.mask = pg.mask.from_surface(mask_img)
 
     def handle_keydown(self, key: int) -> None:
         if key in self.move_keys_main:
             self.current_direction_key = self.move_keys[key]
 
-    def move(self, keys: ScancodeWrapper, center: tuple[int, int], collide_obj) -> None:
+    def move(self, keys: ScancodeWrapper, center: tuple[int, int], collide_obj, world) -> None:
         speed_per_frame = self.speed / FPS
         current_key = None
 
@@ -133,7 +139,9 @@ class Player(pg.sprite.Sprite):
                 self.current_direction = 'right'
             else:
                 self.current_direction = 'down'
-            
+
+            self.last_key = current_key
+
         if collide:
             if self.last_key == "up":
                 self.y += speed_per_frame
@@ -147,6 +155,11 @@ class Player(pg.sprite.Sprite):
             elif self.last_key == "right":
                 self.x -= speed_per_frame
                 # self.current_direction = 'left'
+            else:
+                self.last_key = self.last_direction_key
+                self.x -= speed_per_frame
+                self.y -= speed_per_frame
+
 
         if prev_direction != self.current_direction:
             self.current_image_index = 0
@@ -163,20 +176,21 @@ class Player(pg.sprite.Sprite):
             self.current_image_index = 0
             self.frame_load()
 
-        if (self.x - center[0]) >= 64:
+
+        allise = world.anti_allise(get=True)
+
+        if (self.x - center[0]) >= 64 and allise != "x+":
             self.x -= speed_per_frame - 1
-        elif (center[0] - self.x) >= 64:
+        elif (center[0] - self.x) >= 64 and allise != "x-":
             self.x += speed_per_frame - 1
 
-        if (self.y - center[1]) >= 64:
+        if (self.y - center[1]) >= 64 and allise != "y+":
             self.y -= speed_per_frame - 1
-        elif (center[1] - self.y) >= 64:
+        elif (center[1] - self.y) >= 64 and allise != "y-":
             self.y += speed_per_frame - 1
 
-        self.last_key = current_key
-
-    def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide) -> None:
-        self.move(keys, center, get_collide)
+    def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide, world) -> None:
+        self.move(keys, center, get_collide, world)
         self.frame_load()
 
     def exit_now(self, exit) -> str:

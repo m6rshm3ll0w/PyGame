@@ -97,10 +97,8 @@ class EndScreen:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if self.menu_click_area.collidepoint(event.pos):
-                            self.upload_data()
-                            self.count_taps += 1
                             return 'menu'
-                        elif self.save_click_area.collidepoint(event.pos) and self.count_taps < 1:
+                        elif self.save_click_area.collidepoint(event.pos) and self.count_taps < 1 and self.nickname != "":
                             self.upload_data()
                             self.count_taps += 1
                         if self.nickname_rect.collidepoint(event.pos):

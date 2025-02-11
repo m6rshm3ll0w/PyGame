@@ -43,13 +43,23 @@ def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surfac
 def create_object(screen: pygame.Surface,
                   game_surf: pygame.Surface) -> tuple[WorldClass, Player]:
     world = WorldClass(MapGeneration(), screen, game_surf)
+    
+    world.generate_world_map()
+    world.render_floor()
+    world.render_wall()
+    world.change_start_point()
 
-    coords_tiled = (0, 0)
-    corner = world.get_center_tile_corner()
-    center = (coords_tiled[0] * SIZE + corner[0] + (world.DRAW_DIST) * SIZE,
-              coords_tiled[1] * SIZE + corner[1] + (world.DRAW_DIST) * SIZE)
+    coords_tiled = (world.x_start - world.x_coord, world.y_start - world.y_coord)
+    center = world.get_center_tile_corner()
+    corner_coord = (world.x_centr + center[0], world.y_centr + center[1])
 
-    player = Player(x=center[0], y=center[1])
+        
+    coords = (coords_tiled[0] + world.DRAW_DIST, 
+            coords_tiled[1] + world.DRAW_DIST)
+
+    resized = (coords[0] * SIZE + corner_coord[0], coords[1] * SIZE + corner_coord[1])
+
+    player = Player(x=resized[0], y=resized[1])
 
     return world, player
 
@@ -74,7 +84,7 @@ def clear_screen(screen: pygame.Surface,
     screen.fill(BLACK)
     floor_surf.fill(BLACK)
     game_surf.fill(BLACK)
-    # gui_surf.fill(BLACK)
+    gui_surf.fill(BLACK)
 
 
 def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
@@ -110,19 +120,31 @@ def guide_for_user(screen):
     screen.blit(menu_txt, (415, 530))
 
 
+def timer(screen, time_s):
+    font_over = pygame.font.Font(CONFIG["dirs"]["fonts"]["fontover"], 25)
+
+    now_time = time.time() - time_s
+
+    mins = int(now_time // 60)
+    secs = int(now_time % 60)
+    ms = int((now_time * 1000) % 1000)
+
+    time_on_sec = f"{mins}:{secs:02}.{ms:03}"
+
+    timer_txt = font_over.render(time_on_sec, True, 'white')
+
+    screen.blit(timer_txt, (900-160, 600-50))
+
+
 def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer = AudioPlayer()) -> tuple[str , float, float] | str:
     clock = pg.time.Clock()
     center, floor_surf, game_surf, gui_surf = set_up_layers(size)
 
     world, player = create_object(floor_surf, game_surf)
-    world.generate_world_map()
-    world.render_floor()
-    world.render_wall()
-
-    world.change_start_point()
 
     fog = FogOfGame("./DATA/reses/fog/fog.png")
     draw_fog(fog, gui_surf)
+
     world.draw_minimap(gui_surf)
 
     audio.run(CONFIG['dirs']['sounds']['game'])
@@ -167,13 +189,14 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
         update_map(world, floor_surf, game_surf)
 
-        player.update(keys, center, world.wall)
+        player.update(keys, center, world.wall, world)
         player.draw(game_surf)
 
         if player.exit_now(world.exit_point) == "win":
             return "win", start_time, time.time()
 
         guide_for_user(gui_surf)
+        timer(gui_surf, start_time)
         update_screen(screen, floor_surf, game_surf, gui_surf, clock)
 
     return "quit", start_time, time.time()

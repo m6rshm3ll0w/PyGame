@@ -9,10 +9,11 @@
       "wall": { "ej": "⬜", "perc": 40 },
       "floor": { "ej": "⬛", "perc": 60 },
       "empty": { "ej": "+", "perc": 100 },
-      "start-point": { "ej": "⭐" },
-      "end-point": { "ej": "*️⃣" }
+      "start-point": { "ej": "X" },
+      "end-point": { "ej": "Y" }
     },
     "tile_set": {
+      "mask": "./DATA/reses/tileset/mask.png",
       "size": 32,
       "base_size": 32,
       "comment": "format: row; column ---- start from 1 ---------- splitter > $ <",
@@ -60,8 +61,8 @@
   },
   "player": {
     "speed": 200,
-    "width": 60,
-    "height": 60,
+    "width": 50,
+    "height": 50,
     "animation_sprites": 7,
     "animation_fps": 10,
     "sprite_list": {
@@ -72,7 +73,8 @@
         "up": "./DATA/reses/player/player_top.png",
         "down": "./DATA/reses/player/player_back.png",
         "left": "./DATA/reses/player/player_left.png",
-        "right": "./DATA/reses/player/player_right.png"
+        "right": "./DATA/reses/player/player_right.png",
+        "mask": "./DATA/reses/player/player_mask.png"
       }
     }
   },
@@ -80,7 +82,7 @@
     "game_name": "The Dungeon",
     "authors": "project created by: @m6rshm3ll0w, @st0rmeed",
     "start": "START",
-    "best_results": "BEST"
+    "best": "BEST"
   },
   "main_game": {
     "moving": "MOVING",
@@ -104,7 +106,8 @@
     "fonts": {
       "agat8": "./DATA/fonts/agat-8.ttf",
       "fibberish": "./DATA/fonts/fibberish.ttf",
-      "keleti": "./DATA/fonts/Keleti-Regular.ttf"
+      "keleti": "./DATA/fonts/Keleti-Regular.ttf",
+      "fontover": "./DATA/fonts/Font-Over.ttf"
     },
     "database": "./DATA/reses/results/results.sqlite",
     "pictures": {

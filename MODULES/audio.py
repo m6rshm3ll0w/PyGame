@@ -1,6 +1,5 @@
 import pygame
 from MODULES.init import CONFIG
-import time
 
 class AudioPlayer:
     def __init__(self):
@@ -18,11 +17,11 @@ class AudioPlayer:
         if self.is_running is False:
             pygame.mixer.music.unpause()
             self.is_running = True
-        else:
+
+        elif self.is_running is True:
             pygame.mixer.music.pause()
             self.is_running = False
 
-        self.is_running = not self.is_running
 
     def stop_music(self):
         pygame.mixer.music.stop()

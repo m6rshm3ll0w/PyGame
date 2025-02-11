@@ -20,7 +20,8 @@ class Tile_entity(pg.sprite.Sprite):
         self.image = img
         self.image.set_colorkey(BLACK)
         
-        self.mask = pg.mask.from_surface(self.image)
+        mask = pg.image.load(CONFIG["world_gen"]["tile_set"]["mask"]).convert_alpha()
+        self.mask = pg.mask.from_surface(mask)
         
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y) 
@@ -262,13 +263,25 @@ class WorldClass:
 
         self.anti_allise()
 
-    def anti_allise(self):
-        if self.y_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
-            self.y_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
-        if self.y_coord < self.DRAW_DIST:
-            self.y_coord = self.DRAW_DIST
+    def anti_allise(self, get=False):
+        if not get:
+            if self.y_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+                self.y_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
+            if self.y_coord < self.DRAW_DIST:
+                self.y_coord = self.DRAW_DIST
+            
+            if self.x_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+                self.x_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
+            if self.x_coord < self.DRAW_DIST:
+                self.x_coord = self.DRAW_DIST
         
-        if self.x_coord > (len(self.WORLD.get_map())-self.DRAW_DIST-1):
-            self.x_coord = len(self.WORLD.get_map())-self.DRAW_DIST-1
-        if self.x_coord < self.DRAW_DIST:
-            self.x_coord = self.DRAW_DIST
+        if get:
+            if self.y_coord >= (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+                return "y+"
+            if self.y_coord <= self.DRAW_DIST:
+                return "y-"
+            
+            if self.x_coord >= (len(self.WORLD.get_map())-self.DRAW_DIST-1):
+                return "x+"
+            if self.x_coord <= self.DRAW_DIST:
+                return "x-"
