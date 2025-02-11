@@ -26,6 +26,7 @@ def update_map(World: WorldClass, screen: pygame.Surface, game_surf: pygame.Surf
     WALL.update()
 
     World.draw_points(game_surf)
+    
 
 def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surface, pygame.Surface, pygame.Surface]:
     floor_surf = pygame.surface.Surface((int(size[0]), int(size[1])))
@@ -35,7 +36,7 @@ def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surfac
     gui_surf.set_colorkey(BLACK)
     floor_surf.set_colorkey(BLACK)
 
-    center = game_surf.get_rect().center
+    center = game_surf.get_rect().center[0]-SIZE/2, game_surf.get_rect().center[1]-SIZE/2
 
     return center, floor_surf, game_surf, gui_surf
 
@@ -49,17 +50,11 @@ def create_object(screen: pygame.Surface,
     world.render_wall()
     world.change_start_point()
 
-    coords_tiled = (world.x_start - world.x_coord, world.y_start - world.y_coord)
     center = world.get_center_tile_corner()
-    corner_coord = (world.x_centr + center[0], world.y_centr + center[1])
 
-        
-    coords = (coords_tiled[0] + world.DRAW_DIST, 
-            coords_tiled[1] + world.DRAW_DIST)
+    center = world.DRAW_DIST*SIZE+center[0], world.DRAW_DIST*SIZE+center[1]
 
-    resized = (coords[0] * SIZE + corner_coord[0], coords[1] * SIZE + corner_coord[1])
-
-    player = Player(x=resized[0], y=resized[1])
+    player = Player(x=center[0], y=center[1])
 
     return world, player
 
@@ -68,12 +63,15 @@ def update_screen(screen: pygame.Surface,
                   floor_surf: pygame.Surface,
                   game_surf: pygame.Surface,
                   gui_surf: pygame.Surface,
-                  clock: Clock) -> None:
+                  clock: Clock, start_time) -> None:
     
     clock.tick(int(FPS))
     game_surf.blit(gui_surf, (0, 0))
     floor_surf.blit(game_surf, (0, 0))
     screen.blit(floor_surf, (0, 0))
+
+    timer(screen, start_time)
+
     pygame.display.flip()
 
 
@@ -84,7 +82,7 @@ def clear_screen(screen: pygame.Surface,
     screen.fill(BLACK)
     floor_surf.fill(BLACK)
     game_surf.fill(BLACK)
-    gui_surf.fill(BLACK)
+    # gui_surf.fill(BLACK)
 
 
 def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
@@ -110,11 +108,11 @@ def guide_for_user(screen):
     for key, pos in key_positions.items():
         screen.blit(images[key], pos)
 
-    # img = pygame.image.load(CONFIG['dirs']['pictures']['button'])
-    # img = pygame.transform.scale(
-    #     img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
-    # screen.blit(img, (0, 0))
-
+    img = pygame.image.load(CONFIG['dirs']['pictures']['button']).convert_alpha()
+    img = pygame.transform.scale(
+        img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
+    
+    screen.blit(img, (0, 0))
     screen.blit(moving_txt, (40, 110))
     screen.blit(sound_txt, (20, 205))
     screen.blit(menu_txt, (415, 530))
@@ -143,8 +141,9 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
     world, player = create_object(floor_surf, game_surf)
 
     fog = FogOfGame("./DATA/reses/fog/fog.png")
-    draw_fog(fog, gui_surf)
 
+    draw_fog(fog, gui_surf)
+    guide_for_user(gui_surf)
     world.draw_minimap(gui_surf)
 
     audio.run(CONFIG['dirs']['sounds']['game'])
@@ -177,14 +176,17 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
         keys = pygame.key.get_pressed()
         move_speed = CONFIG["player"]["speed"] // FPS
 
-        if player.x - center[0] >= 64:
-            world.center_point(move_speed, "-x")
-        if player.y - center[1] >= 64:
-            world.center_point(move_speed, "-y")
-        if center[0] - player.x >= 64:
+        error = (player.x + SIZE/2 - center[0], player.y  + SIZE/2 - center[1])
+
+        if error[0] <= 12:
             world.center_point(move_speed, "+x")
-        if center[1] - player.y >= 64:
+        if error[0] >= -12:
+            world.center_point(move_speed, "-x")
+
+        if error[1] <= 12:
             world.center_point(move_speed, "+y")
+        if error[1] >= -12:
+            world.center_point(move_speed, "-y")
 
 
         update_map(world, floor_surf, game_surf)
@@ -195,8 +197,7 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
         if player.exit_now(world.exit_point) == "win":
             return "win", start_time, time.time()
 
-        guide_for_user(gui_surf)
-        timer(gui_surf, start_time)
-        update_screen(screen, floor_surf, game_surf, gui_surf, clock)
+
+        update_screen(screen, floor_surf, game_surf, gui_surf, clock, start_time)
 
     return "quit", start_time, time.time()

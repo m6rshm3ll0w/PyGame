@@ -13,7 +13,7 @@ class Player(pg.sprite.Sprite):
     def __init__(self, x: int, y: int) -> None:
         pg.sprite.Sprite.__init__(self)
 
-        self.x, self.y = x-SIZE/2, y-SIZE/2
+        self.x, self.y = x-SIZE/2+1, y-SIZE/2+1
 
         self.speed: float = CONFIG["player"]["speed"]
 
@@ -123,6 +123,7 @@ class Player(pg.sprite.Sprite):
         prev_direction = self.current_direction
 
         collide = pg.sprite.spritecollide(self, collide_obj, False, pg.sprite.collide_mask)
+        # collide = False
 
         if not collide:
             if current_key == "up":
@@ -178,16 +179,19 @@ class Player(pg.sprite.Sprite):
 
 
         allise = world.anti_allise(get=True)
+        error = (self.x + SIZE/2 - center[0], self.y  + SIZE/2 - center[1])
 
-        if (self.x - center[0]) >= 64 and allise != "x+":
+
+        if error[0] > 10 and allise != "x+":
             self.x -= speed_per_frame - 1
-        elif (center[0] - self.x) >= 64 and allise != "x-":
+        elif error[0] < -10 and allise != "x-":
             self.x += speed_per_frame - 1
 
-        if (self.y - center[1]) >= 64 and allise != "y+":
+        if error[1] > 10 and allise != "y+":
             self.y -= speed_per_frame - 1
-        elif (center[1] - self.y) >= 64 and allise != "y-":
+        elif error[1] < -10 and allise != "y-":
             self.y += speed_per_frame - 1
+
 
     def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide, world) -> None:
         self.move(keys, center, get_collide, world)

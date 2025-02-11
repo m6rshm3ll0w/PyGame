@@ -99,7 +99,7 @@ class WorldClass:
 
     def get_center_tile_corner(self) -> tuple[int, int]:
         center = self.floor_surface.get_rect().center
-        up_left_draw_corner = center[0] - SIZE // 2, center[1] - SIZE // 2
+        up_left_draw_corner = int(center[0] - SIZE // 2), int(center[1] - SIZE // 2)
 
         return (up_left_draw_corner[0] - (SIZE * self.DRAW_DIST + 1),
                 up_left_draw_corner[1] - (SIZE * self.DRAW_DIST + 1))
