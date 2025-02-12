@@ -1,7 +1,6 @@
 import os
 
 from MODULES.MAP.generate import MapGeneration
-from MODULES.RENDER.MAP2IMG import map_visualise
 import pygame as pg
 from MODULES.init import CONFIG
 from PIL import Image
@@ -133,7 +132,7 @@ class WorldClass:
         img = pg.image.load("./DATA/tmp/wall_sprite.png").convert_alpha()
         new_img = self.image = pg.transform.scale(img, (width, height))
         
-        surface.blit(new_img, (surface.get_width()-(width+margin), margin))
+        surface.blit(new_img, (surface.get_width()-(width+margin), margin+20))
 
     def draw_wall(self) -> None:
         self.wall = pg.sprite.Group()
@@ -276,12 +275,15 @@ class WorldClass:
                 self.x_coord = self.DRAW_DIST
         
         if get:
+            list_ = []
             if self.y_coord >= (len(self.WORLD.get_map())-self.DRAW_DIST-1):
-                return "y+"
+                list_.append("y+")
             if self.y_coord <= self.DRAW_DIST:
-                return "y-"
+                list_.append("y-")
             
             if self.x_coord >= (len(self.WORLD.get_map())-self.DRAW_DIST-1):
-                return "x+"
+                list_.append("x+")
             if self.x_coord <= self.DRAW_DIST:
-                return "x-"
+                list_.append("x-")
+
+            return list_

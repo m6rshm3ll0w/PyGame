@@ -107,6 +107,34 @@ class Player(pg.sprite.Sprite):
         if key in self.move_keys_main:
             self.current_direction_key = self.move_keys[key]
 
+    def get_collision(self, world):
+        now_collisions = pg.sprite.spritecollide(self, world.wall, False, pg.sprite.collide_mask)
+
+        for wall in now_collisions:
+            # Вычисляем пересечение двух rect (self и wall)
+            overlap_x = min(self.rect.right, wall.rect.right) - max(self.rect.left, wall.rect.left)
+            overlap_y = min(self.rect.bottom, wall.rect.bottom) - max(self.rect.top, wall.rect.top)
+
+            # Определяем наименьшее перекрытие, чтобы сдвигать по наименее глубокой оси
+            if overlap_x < overlap_y:
+                # Выталкивание по оси X
+                if self.rect.centerx > wall.rect.centerx:
+                    self.x += 2
+                else:
+                    self.x -= 2
+            elif overlap_y < overlap_x:
+                # Выталкивание по оси Y
+                if self.rect.centery > wall.rect.centery:
+                    self.y += 2
+                else:
+                    self.y -= 2
+            else:
+                # Иначе
+                if self.rect.centery > wall.rect.centery:
+                    self.y -= 2
+                else:
+                    self.rect.y += 2
+
     def move(self, keys: ScancodeWrapper, center: tuple[int, int], collide_obj, world) -> None:
         speed_per_frame = self.speed / FPS
         current_key = None
@@ -122,48 +150,43 @@ class Player(pg.sprite.Sprite):
 
         prev_direction = self.current_direction
 
-        collide = pg.sprite.spritecollide(self, collide_obj, False, pg.sprite.collide_mask)
-        # collide = False
+        
+        new_x, new_y = self.x, self.y
 
-        if not collide:
-            if current_key == "up":
-                self.y -= speed_per_frame
-                self.current_direction = 'down'
-            elif current_key == "down":
-                self.y += speed_per_frame
-                self.current_direction = 'up'
-            elif current_key == "left":
-                self.x -= speed_per_frame
-                self.current_direction = 'left'
-            elif current_key == "right":
-                self.x += speed_per_frame
-                self.current_direction = 'right'
-            else:
-                self.current_direction = 'down'
-
-            self.last_key = current_key
-
-        if collide:
-            if self.last_key == "up":
-                self.y += speed_per_frame
-                # self.current_direction = 'up'
-            elif self.last_key == "down":
-                self.y -= speed_per_frame
-                # self.current_direction = 'down'
-            elif self.last_key == "left":
-                self.x += speed_per_frame
-                # self.current_direction = 'right'
-            elif self.last_key == "right":
-                self.x -= speed_per_frame
-                # self.current_direction = 'left'
-            else:
-                self.last_key = self.last_direction_key
-                self.x -= speed_per_frame
-                self.y -= speed_per_frame
+        
+        if current_key == "up":
+            self.y -= speed_per_frame
+            current_direction = 'down'
+        elif current_key == "down":
+            self.y += speed_per_frame
+            current_direction = 'up'
+        elif current_key == "left":
+            self.x -= speed_per_frame
+            current_direction = 'left'
+        elif current_key == "right":
+            self.x += speed_per_frame
+            current_direction = 'right'
+        else:
+            current_direction = 'down'
 
 
-        if prev_direction != self.current_direction:
-            self.current_image_index = 0
+        self.current_direction = current_direction
+
+
+        allise = world.anti_allise(get=True)
+        print(allise)
+        error = (self.x + SIZE/2 - center[0], self.y  + SIZE/2 - center[1])
+        
+        if error[0] > 12 and "x+" not in allise:
+            self.x -= speed_per_frame - 0.7
+        elif error[0] < -12 and "x-" not in allise:
+            self.x += speed_per_frame - 0.7
+
+        if error[1] > 12 and "y+" not in allise:
+            self.y -= speed_per_frame - 0.7
+        elif error[1] < -12 and "y-" not in allise:
+            self.y += speed_per_frame - 0.7
+
 
         if current_key is not None:
             current_time = time.time()
@@ -171,26 +194,15 @@ class Player(pg.sprite.Sprite):
                 self.last_image_change = time.time()
                 self.current_image_index = (self.current_image_index + 1) % self.animation_sprites
                 self.frame_load()
-
         else:
-            # self.current_direction = 'up'
             self.current_image_index = 0
-            self.frame_load()
 
+        if prev_direction != self.current_direction:
+            self.current_image_index = 0
 
-        allise = world.anti_allise(get=True)
-        error = (self.x + SIZE/2 - center[0], self.y  + SIZE/2 - center[1])
+        self.get_collision(world)
 
-
-        if error[0] > 10 and allise != "x+":
-            self.x -= speed_per_frame - 1
-        elif error[0] < -10 and allise != "x-":
-            self.x += speed_per_frame - 1
-
-        if error[1] > 10 and allise != "y+":
-            self.y -= speed_per_frame - 1
-        elif error[1] < -10 and allise != "y-":
-            self.y += speed_per_frame - 1
+        self.frame_load()
 
 
     def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide, world) -> None:

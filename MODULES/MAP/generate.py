@@ -9,37 +9,11 @@ from MODULES.MAP.tileset_use import MAP2TILEMAP
 from MODULES.MAP.check_runble import check_labirint
 
 
-#  Классы обьектов ↓↓↓↓↓↓↓↓↓
-class Item(BaseModel):
-    name: str
-    ej: str
-
-
-class Enemy(BaseModel):
-    name: str
-    health: int
-    speed: int
-    perc: int
-
-
-class Chest(BaseModel):
-    loot: list[Item]
-    coord: dict[str, int]
-
-
-class Spawner(BaseModel):
-    enemies: list[Enemy]
-    timeout: float
-    coord: dict[str, int]
-
-
 class World(BaseModel):
     size: int
     elements: dict[str, dict[str, str | int]]
     start_point: dict[str, int] = {"row": 10, "col": 10}
     end_point: dict[str, int] = {"row": 20, "col": 20}
-    # chests: list[Chest]
-    # spawners: list[Spawner]
 
 #  Генерация карты ↓↓↓↓↓↓↓
 class MapGeneration:
@@ -159,8 +133,8 @@ class MapGeneration:
         check = False
         while not check:
             self.map: list[list[str]] = [[self.ELEMENTS["empty"]["ej"]] * self.WIDTH for _ in range(self.HEIGHT)]
-            self.generate_all_iters()
             self.add_borders()
+            self.generate_all_iters()
 
             end_p, start_p = self.search_points()
             self.map[end_p["row"]][end_p["col"]] = self.ELEMENTS["end-point"]["ej"]
@@ -173,6 +147,15 @@ class MapGeneration:
 
         self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
                           end_point=end_p)
+        
+        for r in [-1,0,1]:
+            for c in [-1,0,1]:
+                if r == 0 and c == 0:
+                    pass
+                else:
+                    self.map[start_p["row"] + r][start_p["col"] + c] = self.ELEMENTS["floor"]["ej"]
+
+        self.add_borders()
 
         ref = MAP2TILEMAP()
         ref.reformat(self.map)

@@ -8,7 +8,7 @@ from MODULES.RENDER.fog import FogOfGame
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
 from MODULES.init import CONFIG, BLACK
-from MODULES.audio import AudioPlayer
+from MODULES.AUDIO.audio import AudioPlayer
 
 FPS = int(CONFIG["pygame"]["FPS"])
 SIZE = CONFIG['world_gen']['tile_set']["size"]
@@ -26,7 +26,7 @@ def update_map(World: WorldClass, screen: pygame.Surface, game_surf: pygame.Surf
     WALL.update()
 
     World.draw_points(game_surf)
-    
+
 
 def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surface, pygame.Surface, pygame.Surface]:
     floor_surf = pygame.surface.Surface((int(size[0]), int(size[1])))
@@ -63,26 +63,21 @@ def update_screen(screen: pygame.Surface,
                   floor_surf: pygame.Surface,
                   game_surf: pygame.Surface,
                   gui_surf: pygame.Surface,
-                  clock: Clock, start_time) -> None:
+                  clock: Clock) -> None:
     
     clock.tick(int(FPS))
     game_surf.blit(gui_surf, (0, 0))
     floor_surf.blit(game_surf, (0, 0))
     screen.blit(floor_surf, (0, 0))
-
-    timer(screen, start_time)
-
     pygame.display.flip()
 
 
 def clear_screen(screen: pygame.Surface,
                  floor_surf: pygame.Surface,
-                 game_surf: pygame.Surface,
-                 gui_surf: pygame.Surface) -> None:
+                 game_surf: pygame.Surface) -> None:
     screen.fill(BLACK)
     floor_surf.fill(BLACK)
     game_surf.fill(BLACK)
-    # gui_surf.fill(BLACK)
 
 
 def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
@@ -92,10 +87,17 @@ def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
 def guide_for_user(screen):
     agat8_20 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
     agat8_30 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 30)
+    agat8_15 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 15)
 
     menu_txt = agat8_30.render(CONFIG['best_results']['menu'], True, 'white')
     moving_txt =agat8_20.render(CONFIG['main_game']['moving'], True, 'white')
     sound_txt = agat8_20.render(CONFIG['main_game']['sound'], True, 'white')
+
+    map_txt = agat8_15.render("MAP", True, 'white')
+    todo_txt = agat8_15.render("Tasks:", True, 'white')
+    task_txt = agat8_15.render("> Find exit!", True, 'white')
+
+    mini_help = agat8_15.render("M.F.D: if you see a bug, simply restart the level, check your luck)", True, 'white')
 
     keys = ['w', 't', 'a', 's', 'd']
     images = {}
@@ -111,11 +113,17 @@ def guide_for_user(screen):
     img = pygame.image.load(CONFIG['dirs']['pictures']['button']).convert_alpha()
     img = pygame.transform.scale(
         img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
-    
     screen.blit(img, (0, 0))
+
     screen.blit(moving_txt, (40, 110))
     screen.blit(sound_txt, (20, 205))
     screen.blit(menu_txt, (415, 530))
+    
+    screen.blit(map_txt, (650+80, 20))
+    screen.blit(todo_txt, (650+80, 180+20))
+    screen.blit(task_txt, (655+80, 195+20))
+
+    screen.blit(mini_help, (200, 600-20))
 
 
 def timer(screen, time_s):
@@ -142,13 +150,11 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
     fog = FogOfGame("./DATA/reses/fog/fog.png")
 
+    audio.run(CONFIG['dirs']['sounds']['game'])
+
     draw_fog(fog, gui_surf)
     guide_for_user(gui_surf)
     world.draw_minimap(gui_surf)
-
-    audio.run(CONFIG['dirs']['sounds']['game'])
-
-    
     
     menu_click_area = pygame.Rect(390, 518, 120, 50)
 
@@ -157,7 +163,7 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
     running = True
     while running:
 
-        clear_screen(screen, floor_surf, game_surf, gui_surf)
+        clear_screen(screen, floor_surf, game_surf)
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -197,7 +203,8 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
         if player.exit_now(world.exit_point) == "win":
             return "win", start_time, time.time()
 
-
-        update_screen(screen, floor_surf, game_surf, gui_surf, clock, start_time)
+        
+        update_screen(screen, floor_surf, game_surf, gui_surf, clock)
+        timer(screen, start_time)
 
     return "quit", start_time, time.time()

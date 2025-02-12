@@ -2,9 +2,9 @@ import pygame
 from MODULES.init import CONFIG
 from MODULES.RENDER.main import main_game_loop
 from MODULES.BEST_RESULTS.best_results import ScoreTable
-from MODULES.START_SCREEN.start_screen import start_screen
+from MODULES.START_SCREEN.start_screen import StartScreen
 from MODULES.END_SCREEN.end_screen import EndScreen
-from MODULES.audio import AudioPlayer
+from MODULES.AUDIO.audio import AudioPlayer
 
 size = (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"])
 f_size = (CONFIG["pygame"]["f_width"], CONFIG["pygame"]["f_height"])
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     while True:
         if flag == "menu":
-            flag = start_screen(scr, size, audio)
+            flag = StartScreen(scr, size, audio).run()
 
         if flag == "error" or flag == "quit":
             break
