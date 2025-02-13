@@ -1,7 +1,7 @@
 import pygame
 import sqlite3
 import sys
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 
 
 class ScoreTable:
@@ -46,6 +46,7 @@ class ScoreTable:
         ]
 
     def get_table_data(self):
+        logger.info("get data from bd")
         con = sqlite3.connect(self.CONFIG['dirs']['database'])
         cur = con.cursor()
         data = list(cur.execute('''
@@ -60,6 +61,7 @@ class ScoreTable:
         return data[:10]
 
     def draw_table(self):
+        logger.debug("drawing table")
         for i, header in enumerate(self.headers):
             text = self.font.render(header, True, self.WHITE)
             x = 0
@@ -113,6 +115,7 @@ class ScoreTable:
                              (self.WIDTH - self.TABLE_MARGIN, y), 2)
 
     def run(self, audio):
+        logger.info("Best result screen runned")
         running = True
         while running:
             for event in pygame.event.get():

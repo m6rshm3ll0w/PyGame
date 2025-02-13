@@ -1,6 +1,6 @@
 import pygame
 from MODULES.init import CONFIG, check_tmp, set_logging, logger
-from MODULES.RENDER.main import main_game_loop
+from MODULES.RENDER.main import MainGameLoop
 from MODULES.BEST_RESULTS.best_results import ScoreTable
 from MODULES.START_SCREEN.start_screen import StartScreen
 from MODULES.END_SCREEN.end_screen import EndScreen
@@ -37,7 +37,7 @@ if __name__ == "__main__":
             break
 
         if flag == "main_game":
-            flag, time1, time2 = main_game_loop(scr, size, audio)
+            flag, time1, time2 = MainGameLoop(scr, size, audio).run()
             if flag == "quit":
                 break
             elif flag == 'win':

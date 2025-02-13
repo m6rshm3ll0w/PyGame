@@ -49,7 +49,7 @@ class EndScreen:
         self.cursor_interval = 500
 
     def upload_data(self):
-        logger.info("writing data to bd")
+        logger.info("save data")
         con = sqlite3.connect(CONFIG['dirs']['database'])
         cur = con.cursor()
         cur.execute('''
@@ -63,6 +63,7 @@ class EndScreen:
         cur.close()
 
     def draw_transparent_rounded_rect(self, x, y, width, height, color, alpha, border_radius=0, thickness=0):
+        logger.info("draw rect")
         surface = pygame.Surface((width, height), pygame.SRCALPHA)
         surface.fill((0, 0, 0, 0))
 
@@ -76,7 +77,7 @@ class EndScreen:
         self.screen.blit(surface, (x, y))
 
     def run(self, audio):
-        logger.info("end screen is running")
+        logger.info("End screen runned")
         running = True
         while running:
             current_time = pygame.time.get_ticks()
@@ -100,7 +101,7 @@ class EndScreen:
                     if event.button == 1:
                         if self.menu_click_area.collidepoint(event.pos):
                             return 'menu'
-                        elif self.save_click_area.collidepoint(event.pos) and self.count_taps < 1 and self.nickname != "":
+                        if self.save_click_area.collidepoint(event.pos) and self.count_taps < 1:
                             self.upload_data()
                             self.count_taps += 1
                         if self.nickname_rect.collidepoint(event.pos):
@@ -119,8 +120,9 @@ class EndScreen:
                 190, 165, 500, 200, (255, 255, 255), 100, 30
             )
 
-            self.draw_transparent_rounded_rect(*self.nickname_rect, color=(255, 255, 255), alpha=255, border_radius=10, thickness=2)
-            
+            self.draw_transparent_rounded_rect(
+                *self.nickname_rect, color=(255, 255, 255), alpha=255, border_radius=10, thickness=2
+            )
 
             nickname_input_text = self.font.render(
                 self.nickname, True, 'white')
