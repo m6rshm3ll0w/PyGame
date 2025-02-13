@@ -1,4 +1,15 @@
-## The Dungeon 
+# The Dungeon 
+
+
+![GitHub contributors](https://img.shields.io/github/contributors/m6rshm3ll0w/TheDungeon)
+![create](https://img.shields.io/github/created-at/m6rshm3ll0w/TheDungeon)
+![GitHub top language](https://img.shields.io/github/languages/top/m6rshm3ll0w/TheDungeon)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/m6rshm3ll0w/TheDungeon)
+![GitHub repo size](https://img.shields.io/github/repo-size/m6rshm3ll0w/TheDungeon)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/m6rshm3ll0w/TheDungeon/latest/total?sort=date&style=flat)
+
+## Описание
+
 выберетесь из мрачных лабиринтов внеземной лаборатории, которые каждый раз меняются, ищите выход под аккомпанемент классной музыки.
 
 #### Мы использовали:
@@ -12,5 +23,5 @@
 @m6rshm3ll0w & @st0rmed
 
 
-[x] - коллизии
-[ ] - перевод
+- [x] - коллизии
+- [ ] - перевод
