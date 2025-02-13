@@ -1,4 +1,5 @@
 import os
+from MODULES.init import logger
 
 from MODULES.MAP.generate import MapGeneration
 import pygame as pg
@@ -34,7 +35,6 @@ class WorldClass:
     def __init__(self, WORLD: MapGeneration, floor_surface: pg.Surface, wall_surface: pg.Surface) -> None:
         self.floor: Tile_entity
         self.wall = pg.sprite.Group()
-        # self.start_point: Tile_entity
         self.exit_point = None
         self.WORLD = WORLD
         self.floor_surface = floor_surface
@@ -56,20 +56,27 @@ class WorldClass:
 
     def change_start_point(self) -> None:
         self.data = self.WORLD.get_data()
+        logger.debug("data get sucsessful!")
+        
         self.x_start = self.data.start_point["col"] 
         self.y_start = self.data.start_point["row"] 
+
+        logger.debug("Start_point correct")
 
         self.x_coord = self.x_start
         self.y_coord = self.y_start
 
+        logger.debug("seltup world coords")
+
         self.x_end = self.data.end_point["col"]
         self.y_end = self.data.end_point["row"]
 
+        logger.debug("points seted sucsessful")
+
     def generate_world_map(self, vis:bool=False) -> None:
+        logger.info("generation map")
         self.WORLD.generate_world()
-        if vis:
-            MAP = self.WORLD.get_map()
-            map_visualise(MAP)
+        logger.info("sucsessful generation")
 
     def draw_points(self, surface: pg.Surface):
         self.draw_end(surface=surface)
@@ -116,7 +123,7 @@ class WorldClass:
                                    up_left_draw_corner[1], tile_type)
                 self.floor = obj_
             except AttributeError:
-                raise AttributeError("error")
+                logger.error("error creating a tile")
 
         if wall:
             try:
@@ -124,7 +131,7 @@ class WorldClass:
                                    up_left_draw_corner[1], tile_type)
                 self.wall.add(obj_)
             except AttributeError:
-                raise AttributeError("error")
+                logger.error("error creating a wall tile")
             
     def draw_minimap(self, surface: pg.Surface):
         width = height = 150
@@ -133,6 +140,8 @@ class WorldClass:
         new_img = self.image = pg.transform.scale(img, (width, height))
         
         surface.blit(new_img, (surface.get_width()-(width+margin), margin+20))
+
+        logger.debug("minimap drawed")
 
     def draw_wall(self) -> None:
         self.wall = pg.sprite.Group()
@@ -194,7 +203,7 @@ class WorldClass:
     def render_floor(self) -> None:
         dist = self.DRAW_DIST * 2 + 1
 
-        print("Pre-Render Floor > ", end="")
+        logger.info("Pre-Render Floor")
 
         img_floor = Image.new('RGB', (SIZE * dist, SIZE * dist), 'black')
         for row in range(dist):
@@ -204,14 +213,16 @@ class WorldClass:
 
         img_floor.save("./DATA/tmp/floor_sprite.png")
 
-        print("DONE!!!")
+        logger.info("DONE!!!")
 
     def render_wall(self) -> None:
         WIDTH = HEIGHT = CONFIG['world_gen']['size']
-        print("Pre-Render Wall  > ", end="")
+        logger.info("Pre-Render Wall")
         tilemap = self.WORLD.tilemap
 
         img_wall = Image.new('RGBA', (SIZE * WIDTH, SIZE * HEIGHT), (255, 0, 0, 0))
+        logger.debug("image created")
+
         for row in range(HEIGHT):
             for col in range(WIDTH):
                 tile = self.search_tile(row, col, tilemap)
@@ -222,14 +233,14 @@ class WorldClass:
                     img_wall.paste(r, (col * 32, row * 32))
 
         img_wall.save("./DATA/tmp/wall_sprite.png")
-
-        print("DONE!!!")
+        logger.debug("SAVED to -> './DATA/tmp/wall_sprite.png'")
+        logger.info("DONE!!!")
 
     def pre_render_textures(self) -> None:
-        print(">> PRE RENDERING:")
+        logger.info("PRE RENDERING:")
         self.render_wall()
         self.render_floor()
-        print(">> DONE!!!")
+        logger.info("DONE!!!")
 
     def center_point(self, other: int, operat: str) -> None:
         if operat == "+x" and self.x_coord > self.DRAW_DIST:

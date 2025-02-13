@@ -12,5 +12,6 @@ class FogOfGame(pg.sprite.Sprite):
         self.rect.x = 0
         self.rect.y = 0
         
+        
     def draw(self, screen: pg.Surface) -> None:
         screen.blit(self.image, self.rect)

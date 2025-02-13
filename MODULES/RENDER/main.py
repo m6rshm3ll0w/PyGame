@@ -7,7 +7,7 @@ from MODULES.ENTITYES.player import Player
 from MODULES.RENDER.fog import FogOfGame
 from MODULES.MAP.generate import MapGeneration
 from MODULES.RENDER.render_world import WorldClass
-from MODULES.init import CONFIG, BLACK
+from MODULES.init import CONFIG, BLACK, logger
 from MODULES.AUDIO.audio import AudioPlayer
 
 FPS = int(CONFIG["pygame"]["FPS"])
@@ -38,6 +38,7 @@ def set_up_layers(size: tuple[int, int]) -> tuple[tuple[int, int], pygame.Surfac
 
     center = game_surf.get_rect().center[0]-SIZE/2, game_surf.get_rect().center[1]-SIZE/2
 
+    logger.info("surfaces setuped")
     return center, floor_surf, game_surf, gui_surf
 
 
@@ -50,11 +51,14 @@ def create_object(screen: pygame.Surface,
     world.render_wall()
     world.change_start_point()
 
-    center = world.get_center_tile_corner()
+    logger.info("world class created")
 
+    center = world.get_center_tile_corner()
     center = world.DRAW_DIST*SIZE+center[0], world.DRAW_DIST*SIZE+center[1]
 
     player = Player(x=center[0], y=center[1])
+
+    logger.info("player class created")
 
     return world, player
 
@@ -63,12 +67,14 @@ def update_screen(screen: pygame.Surface,
                   floor_surf: pygame.Surface,
                   game_surf: pygame.Surface,
                   gui_surf: pygame.Surface,
-                  clock: Clock) -> None:
+                  clock: Clock, start_time:float) -> None:
     
     clock.tick(int(FPS))
     game_surf.blit(gui_surf, (0, 0))
     floor_surf.blit(game_surf, (0, 0))
     screen.blit(floor_surf, (0, 0))
+
+    timer(screen, start_time)
     pygame.display.flip()
 
 
@@ -85,10 +91,13 @@ def draw_fog(obj: FogOfGame, screen: pygame.Surface) -> None:
 
 
 def guide_for_user(screen):
+    logger.info("creating tips")
+    logger.info("setup fonts")
     agat8_20 = pygame.font.Font(CONFIG["dirs"]["fonts"]["agat8"], 20)
     agat8_30 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 30)
     agat8_15 = pygame.font.Font(CONFIG['dirs']['fonts']['agat8'], 15)
 
+    logger.info("render text")
     menu_txt = agat8_30.render(CONFIG['best_results']['menu'], True, 'white')
     moving_txt =agat8_20.render(CONFIG['main_game']['moving'], True, 'white')
     sound_txt = agat8_20.render(CONFIG['main_game']['sound'], True, 'white')
@@ -97,7 +106,8 @@ def guide_for_user(screen):
     todo_txt = agat8_15.render("Tasks:", True, 'white')
     task_txt = agat8_15.render("> Find exit!", True, 'white')
 
-    mini_help = agat8_15.render("M.F.D: if you see a bug, simply restart the level, check your luck)", True, 'white')
+    # M.F.D: if you see a bug, simply restart the level, check your luck
+    logger.info("loading pictures")
 
     keys = ['w', 't', 'a', 's', 'd']
     images = {}
@@ -113,6 +123,8 @@ def guide_for_user(screen):
     img = pygame.image.load(CONFIG['dirs']['pictures']['button']).convert_alpha()
     img = pygame.transform.scale(
         img, (CONFIG["pygame"]["width"], CONFIG["pygame"]["height"]))
+    
+    logger.info("blit tips to screen")
     screen.blit(img, (0, 0))
 
     screen.blit(moving_txt, (40, 110))
@@ -122,8 +134,6 @@ def guide_for_user(screen):
     screen.blit(map_txt, (650+80, 20))
     screen.blit(todo_txt, (650+80, 180+20))
     screen.blit(task_txt, (655+80, 195+20))
-
-    screen.blit(mini_help, (200, 600-20))
 
 
 def timer(screen, time_s):
@@ -143,6 +153,8 @@ def timer(screen, time_s):
 
 
 def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPlayer = AudioPlayer()) -> tuple[str , float, float] | str:
+    logger.info("game is running")
+    
     clock = pg.time.Clock()
     center, floor_surf, game_surf, gui_surf = set_up_layers(size)
 
@@ -150,6 +162,7 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
     fog = FogOfGame("./DATA/reses/fog/fog.png")
 
+    logger.info("running audio")
     audio.run(CONFIG['dirs']['sounds']['game'])
 
     draw_fog(fog, gui_surf)
@@ -157,7 +170,8 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
     world.draw_minimap(gui_surf)
     
     menu_click_area = pygame.Rect(390, 518, 120, 50)
-
+    
+    logger.info("create start time")
     start_time: float = time.time()
 
     running = True
@@ -197,14 +211,15 @@ def main_game_loop(screen: pygame.Surface, size: tuple[int, int], audio: AudioPl
 
         update_map(world, floor_surf, game_surf)
 
-        player.update(keys, center, world.wall, world)
+        player.update(keys, center, world)
         player.draw(game_surf)
 
         if player.exit_now(world.exit_point) == "win":
+            logger.info("game win!!")
             return "win", start_time, time.time()
 
         
-        update_screen(screen, floor_surf, game_surf, gui_surf, clock)
-        timer(screen, start_time)
+        update_screen(screen, floor_surf, game_surf, gui_surf, clock, start_time)
+        
 
     return "quit", start_time, time.time()

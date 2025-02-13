@@ -1,5 +1,5 @@
 import pygame
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 
 
 class StartScreen:
@@ -31,6 +31,7 @@ class StartScreen:
         self.best_rect = self.best_surface.get_rect(topleft=(487, 530))
 
     def run(self) -> str:
+        logger.info("start screen is running")
         self.audio.run()
         running = True
 

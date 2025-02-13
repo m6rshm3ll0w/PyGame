@@ -1,4 +1,4 @@
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 
 
 class MAP2TILEMAP:
@@ -113,9 +113,11 @@ class MAP2TILEMAP:
 
     def reformat(self, MAP: list[list[str]]):
         self.map = MAP
+        logger.info("generating tileset")
         for row in range(self.HEIGHT):
             for col in range(self.WIDTH):
                 self.tile_map[row][col] = self.find_tile(row, col)
+        logger.info("tileset generate - sucsessful!!!")
 
     def get_tilemap(self):
         return self.tile_map

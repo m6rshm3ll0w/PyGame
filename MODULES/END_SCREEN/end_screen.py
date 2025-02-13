@@ -1,7 +1,7 @@
 import pygame
 import sqlite3
 import sys
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 
 
 class EndScreen:
@@ -49,6 +49,7 @@ class EndScreen:
         self.cursor_interval = 500
 
     def upload_data(self):
+        logger.info("writing data to bd")
         con = sqlite3.connect(CONFIG['dirs']['database'])
         cur = con.cursor()
         cur.execute('''
@@ -75,6 +76,7 @@ class EndScreen:
         self.screen.blit(surface, (x, y))
 
     def run(self, audio):
+        logger.info("end screen is running")
         running = True
         while running:
             current_time = pygame.time.get_ticks()

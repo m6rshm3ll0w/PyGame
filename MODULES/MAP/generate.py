@@ -4,7 +4,7 @@ import math
 from pydantic import BaseModel
 import random
 
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 from MODULES.MAP.tileset_use import MAP2TILEMAP
 from MODULES.MAP.check_runble import check_labirint
 
@@ -67,6 +67,7 @@ class MapGeneration:
         return current_tile
 
     def search_points(self) -> tuple[dict[str, int], dict[str, int]]:
+        logger.info("searcching start and end point")
         points_of_end: list[tuple[int, int]] = []
 
         for row in range(self.HEIGHT):
@@ -82,6 +83,8 @@ class MapGeneration:
 
         er = points_of_end[r_p][0]
         ec = points_of_end[r_p][1]
+
+        logger.debug(f"end point selected from {total_points}")
 
         points_of_start: list[tuple[int, int]] = []
 
@@ -101,6 +104,9 @@ class MapGeneration:
         sr: int = points_of_start[r_p][0]
         sc: int = points_of_start[r_p][1]
 
+        logger.debug(f"start point selected from {total_points}")
+        logger.info("sucsessful searching start and end points!")
+
         return {"row": er, "col": ec}, {"row": sr, "col": sc}
 
     def generate_iteration(self) -> list[list[str]]:
@@ -112,6 +118,7 @@ class MapGeneration:
 
 
     def add_borders(self) -> None:
+        logger.debug("adding borders")
         self.map[0] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
         self.map[-1] = [self.ELEMENTS["wall"]["ej"]] * self.WIDTH
 
@@ -142,36 +149,48 @@ class MapGeneration:
             
             check = check_labirint(self.map)
 
-            print(try_, check)
+            logger.info(f"Generating world : {try_} | check : {check}")
             try_ += 1
 
-        self.data = World(size=self.WIDTH, elements=self.ELEMENTS, start_point=start_p,
+        logger.info("creading data")
+        self.data = World(size=self.WIDTH, elements=self.ELEMENTS, 
+                          start_point=start_p,
                           end_point=end_p)
         
+        self.safe_spawn(start_p)
+
+        self.add_borders()
+
+        logger.info("Reformating to tileset")
+        ref = MAP2TILEMAP()
+        ref.reformat(self.map)
+        logger.info("tileset created sucsessful!")
+
+        self.tilemap = ref.get_tilemap()    
+
+        # self.write_world()
+    
+    # def write_world(self): # Если слишком сложно пройти лабиринт
+    #     logger.debug("writing data to txt")
+    #     with open("./DATA/tmp/map-simple.txt", "w", encoding="UTF-8") as map_file:
+    #         for row in range(self.HEIGHT):
+    #             map_file.write("".join(self.map[row]) + "\n")
+
+        # with open("./DATA/world/map-tiled.dat", "w", encoding="UTF-8") as map_file:
+        #     for row in range(self.HEIGHT):
+        #         map_file.write("$".join(self.tilemap[row]) + "\n")
+
+        # with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
+        #     conf.write(self.data.model_dump_json())
+
+    def safe_spawn(self, start_point):
+        logger.debug("clearing spawn")
         for r in [-1,0,1]:
             for c in [-1,0,1]:
                 if r == 0 and c == 0:
                     pass
                 else:
-                    self.map[start_p["row"] + r][start_p["col"] + c] = self.ELEMENTS["floor"]["ej"]
-
-        self.add_borders()
-
-        ref = MAP2TILEMAP()
-        ref.reformat(self.map)
-
-        self.tilemap = ref.get_tilemap()
-
-        with open("./DATA/world/map-simple.dat", "w", encoding="UTF-8") as map_file:
-            for row in range(self.HEIGHT):
-                map_file.write("".join(self.map[row]) + "\n")
-
-        with open("./DATA/world/map-tiled.dat", "w", encoding="UTF-8") as map_file:
-            for row in range(self.HEIGHT):
-                map_file.write("$".join(self.tilemap[row]) + "\n")
-
-        with open("./DATA/world/world.json", "w", encoding="UTF-8") as conf:
-            conf.write(self.data.model_dump_json())
+                    self.map[start_point["row"] + r][start_point["col"] + c] = self.ELEMENTS["floor"]["ej"]
 
     def get_map(self) -> list[list[str]]:
             try:

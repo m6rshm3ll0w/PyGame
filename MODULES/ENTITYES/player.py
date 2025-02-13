@@ -3,7 +3,8 @@ from PIL import Image
 import pygame as pg
 import time
 from pygame.key import ScancodeWrapper
-from MODULES.init import CONFIG
+from MODULES.RENDER.render_world import WorldClass
+from MODULES.init import CONFIG, logger
 
 FPS = int(CONFIG["pygame"]["FPS"])
 SIZE = CONFIG['world_gen']['tile_set']["size"]
@@ -52,7 +53,8 @@ class Player(pg.sprite.Sprite):
         self.last_key = "up"
 
     def crop_sprite_list(self, path: str, spritelist: str) -> dict[int, str]:
-        print(f"Loading {spritelist} sprite list {path}")
+        logger.info(f"Loading {spritelist} sprite list {path}")
+
         image = Image.open(path)
         imgs: dict[int, str] = {}
 
@@ -83,7 +85,7 @@ class Player(pg.sprite.Sprite):
         for spritelist, path in self.sprite_list.items():
             images = self.crop_sprite_list(path, spritelist)
             data_list[spritelist] = images
-        print("DONE")
+        logger.info("setup image lists - DONE")
 
         return data_list
 
@@ -102,6 +104,8 @@ class Player(pg.sprite.Sprite):
         mask_img = pg.transform.scale(
             mask_img, (self.desired_width, self.desired_height))
         self.mask = pg.mask.from_surface(mask_img)
+
+        logger.info("player mask loaded")
 
     def handle_keydown(self, key: int) -> None:
         if key in self.move_keys_main:
@@ -135,7 +139,7 @@ class Player(pg.sprite.Sprite):
                 else:
                     self.rect.y += 2
 
-    def move(self, keys: ScancodeWrapper, center: tuple[int, int], collide_obj, world) -> None:
+    def move(self, keys: ScancodeWrapper, center: tuple[int, int], world) -> None:
         speed_per_frame = self.speed / FPS
         current_key = None
 
@@ -151,9 +155,6 @@ class Player(pg.sprite.Sprite):
         prev_direction = self.current_direction
 
         
-        new_x, new_y = self.x, self.y
-
-        
         if current_key == "up":
             self.y -= speed_per_frame
             current_direction = 'down'
@@ -167,14 +168,13 @@ class Player(pg.sprite.Sprite):
             self.x += speed_per_frame
             current_direction = 'right'
         else:
-            current_direction = 'down'
+            current_direction = 'up'
 
 
         self.current_direction = current_direction
 
 
         allise = world.anti_allise(get=True)
-        print(allise)
         error = (self.x + SIZE/2 - center[0], self.y  + SIZE/2 - center[1])
         
         if error[0] > 12 and "x+" not in allise:
@@ -205,8 +205,8 @@ class Player(pg.sprite.Sprite):
         self.frame_load()
 
 
-    def update(self, keys: ScancodeWrapper, center: tuple[int, int], get_collide, world) -> None:
-        self.move(keys, center, get_collide, world)
+    def update(self, keys: ScancodeWrapper, center: tuple[int, int], world:WorldClass) -> None:
+        self.move(keys, center, world)
         self.frame_load()
 
     def exit_now(self, exit) -> str:

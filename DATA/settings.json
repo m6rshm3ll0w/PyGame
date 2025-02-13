@@ -1,6 +1,6 @@
 {
   "name": "TheDungeon",
-  "version": "0.1a",
+  "version": "1.0",
   "world_gen": {
     "size": 55,
     "s-p_dist": 15,
@@ -42,10 +42,7 @@
         "vertical-down-end": { "coord": [3, 5], "ej": "V-DE" },
 
         "end-point": { "coord": [2, 10], "ej": "P-E" },
-        "start-point": { "coord": [3, 10], "ej": "P-S" },
-
-        "spawner": { "coord": [2, 9], "ej": "S" },
-        "chest": { "coord": [3, 9], "ej": "C" }
+        "start-point": { "coord": [3, 10], "ej": "P-S" }
       }
     }
   },
@@ -60,11 +57,12 @@
     "f_height": 1080
   },
   "player": {
-    "speed": 200,
+    "speed": 100,
     "width": 50,
     "height": 50,
     "animation_sprites": 7,
-    "animation_fps": 10,
+    "animation_fps": 20,
+    "mask": "./DATA/reses/player/player_mask.png",
     "sprite_list": {
       "size": 64,
       "cols": 7,
@@ -73,8 +71,7 @@
         "up": "./DATA/reses/player/player_top.png",
         "down": "./DATA/reses/player/player_back.png",
         "left": "./DATA/reses/player/player_left.png",
-        "right": "./DATA/reses/player/player_right.png",
-        "mask": "./DATA/reses/player/player_mask.png"
+        "right": "./DATA/reses/player/player_right.png"
       }
     }
   },
@@ -103,6 +100,8 @@
   "dirs": {
     "req": "./DATA/requirements.txt",
     "comment": "относительно main.py",
+    "temp_paths": ["/DATA/tmp", "/DATA/tmp/player", "/DATA/tmp/tiles"],
+    "temp_folder": "/DATA/tmp",
     "fonts": {
       "agat8": "./DATA/fonts/agat-8.ttf",
       "fibberish": "./DATA/fonts/fibberish.ttf",

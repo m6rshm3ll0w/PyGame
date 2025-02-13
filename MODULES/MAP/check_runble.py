@@ -1,11 +1,14 @@
 from collections import deque
-from MODULES.init import CONFIG
+from MODULES.init import CONFIG, logger
 
 def find_position(maze, char):
+    logger.debug("searching position")
     for i, row in enumerate(maze):
         for j, cell in enumerate(row):
             if cell == char:
+                logger.debug("Sucsessful search position")
                 return i, j
+    logger.debug("point dont searched")
     return None
 
 def is_valid_move(maze, x, y, visited):
@@ -33,14 +36,17 @@ def bfs(maze, start, end):
     return False
 
 def check_labirint(maze):
-    
+    logger.debug("check runable")
     start = find_position(maze, "X")
     end = find_position(maze, "Y")
     
     if not start or not end:
+        logger.error("cant find start or end )")
         return "error"
     
     if bfs(maze, start, end):
+        logger.debug("labirinnt is runble")
         return True
     else:
+        logger.debug("labirinnt isnt runble")
         return False
